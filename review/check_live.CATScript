@@ -1,0 +1,39 @@
+Language="VBSCRIPT"
+Sub CATMain()
+ Dim fso,log,d,p,i,j,a,oo(2),xx(2),yy(2),b,spa,m
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile("C:\Users\Hashaam\Documents\CAD_Project\review\live_inspection.txt",True)
+ Set d=CATIA.ActiveDocument
+ Set p=d.Part
+ log.WriteLine d.FullName
+ For i=1 To p.Bodies.Count
+  Set b=p.Bodies.Item(i)
+  log.WriteLine b.Name
+  For j=1 To b.Shapes.Count
+   log.WriteLine b.Shapes.Item(j).Name & " " & TypeName(b.Shapes.Item(j))
+  Next
+ Next
+ For i=1 To p.AxisSystems.Count
+  Set a=p.AxisSystems.Item(i)
+  a.GetOrigin oo:a.GetXAxis xx:a.GetYAxis yy
+  log.WriteLine a.Name & ": O=" & Join(oo,",") & " X=" & Join(xx,",") & " Y=" & Join(yy,",")
+ Next
+ If InStr(d.FullName,"\CAD_Project\live_parts\")>0 Then
+  d.Save
+  d.ExportData "C:\Users\Hashaam\Documents\CAD_Project\review\pedal_current.stp","stp"
+ End If
+ For Each a In Array("MC_Inlet","BRK_PRS_Sensor_Connection","Pedal_Body")
+  Set d=CATIA.Documents.Open("C:\Users\Hashaam\Documents\CAD_Project\parts\" & a & "_Reference.CATPart")
+  Set p=d.Part
+  Set spa=d.GetWorkbench("SPAWorkbench")
+  For i=1 To p.Bodies.Count
+   Set b=p.Bodies.Item(i)
+   On Error Resume Next
+   Set m=spa.GetMeasurable(p.CreateReferenceFromObject(b))
+   log.WriteLine a & " " & b.Name & " VOLUME_M3=" & m.Volume
+   On Error GoTo 0
+  Next
+  d.Close
+ Next
+ log.Close
+End Sub

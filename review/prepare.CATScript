@@ -1,0 +1,64 @@
+Language="VBSCRIPT"
+Dim root, fso, log
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ If Not fso.FolderExists(root & "\parts") Then fso.CreateFolder root & "\parts"
+ Set log=fso.CreateTextFile(root & "\review\prepare_log.txt",True)
+ Dim folder,f,d,p,n,j,a,ax(2),ay(2),ao(2),cp
+ Set folder=fso.GetFolder(root & "\reference_parts")
+ For Each f In folder.Files
+  If LCase(fso.GetExtensionName(f.Name))="stp" Then
+   n=fso.GetBaseName(f.Name)
+   log.WriteLine "IMPORT " & n
+   Set d=CATIA.Documents.Open(f.Path)
+   d.Activate
+   Set d=CATIA.ActiveDocument
+   SaveLocal d,n
+   d.Close
+  End If
+ Next
+ Set folder=fso.GetFolder(root & "\source_copies")
+ For Each f In folder.Files
+  If LCase(fso.GetExtensionName(f.Name))="catpart" Then
+   Set d=CATIA.Documents.Open(f.Path)
+   d.Activate
+   Set p=d.Part
+   log.WriteLine "MODEL " & f.Name
+   For j=1 To p.AxisSystems.Count
+    Set a=p.AxisSystems.Item(j)
+    a.GetOrigin ao
+    a.GetXAxis ax
+    a.GetYAxis ay
+    log.WriteLine "AXIS " & a.Name & " O=" & Join(ao,",") & " X=" & Join(ax,",") & " Y=" & Join(ay,",")
+   Next
+   d.ExportData root & "\review\" & fso.GetBaseName(f.Name) & ".stp","stp"
+   CATIA.ActiveWindow.ActiveViewer.Reframe
+   CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\" & fso.GetBaseName(f.Name) & "_actual.bmp"
+   d.Close
+  End If
+ Next
+ log.WriteLine "DONE"
+ log.Close
+End Sub
+Sub SaveLocal(d,n)
+ Dim p,j,ch,cd,isPart
+ log.WriteLine "TYPE " & TypeName(d) & " " & d.Name
+ Set p=Nothing
+ On Error Resume Next
+ Set p=d.Part
+ On Error GoTo 0
+ If Not p Is Nothing Then
+  d.SaveAs root & "\parts\" & n & "_Reference.CATPart"
+ Else
+  Set p=d.Product
+  For j=1 To p.Products.Count
+   Set ch=p.Products.Item(j)
+   Set cd=ch.ReferenceProduct.Parent
+   SaveLocal cd,n & "_" & CStr(j)
+  Next
+  p.PartNumber=n
+  d.SaveAs root & "\parts\" & n & "_Reference.CATProduct"
+ End If
+ log.WriteLine "SAVED " & d.FullName
+End Sub

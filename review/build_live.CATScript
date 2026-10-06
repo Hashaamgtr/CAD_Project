@@ -1,0 +1,322 @@
+Language="VBSCRIPT"
+Dim d,p,hf,sf,main,ske,pln,pas,work,cp,localOrigin,localAxis,partAxis,sk,fac,feat,sel,log,root,fso
+Sub InitPart(n)
+ Set d=CATIA.Documents.Add("Part")
+ d.Activate
+ Set d=CATIA.ActiveDocument
+ Set p=d.Part
+ d.SaveAs root & "\editable_parts\" & n & ".CATPart"
+ Set hf=p.HybridShapeFactory
+ Set sf=p.ShapeFactory
+ Set main=p.MainBody
+ main.Name="MAIN"
+ Set pas=p.HybridBodies.Add: pas.Name="PAS"
+ Set cp=hf.AddNewPointCoord(0,0,0): cp.Name="CenterPoint": pas.AppendHybridShape cp
+ p.Update
+ Set partAxis=p.AxisSystems.Add
+ partAxis.Name="PartAxisSystem"
+ partAxis.OriginPoint=p.CreateReferenceFromObject(cp)
+ partAxis.XAxisType=1
+ partAxis.YAxisType=1
+ partAxis.PutXAxis Array(1,0,0)
+ partAxis.PutYAxis Array(0,1,0)
+ Dim g
+ Set g=p.HybridBodies.Add: g.Name="IMPORT"
+ Set g=p.HybridBodies.Add: g.Name="EXPORT"
+ Set pln=p.HybridBodies.Add: pln.Name="PLN"
+ Set ske=p.HybridBodies.Add: ske.Name="SKE"
+ Set work=p.HybridBodies.Add: work.Name="WORK"
+ Set localOrigin=hf.AddNewPointCoord(0,0,0): localOrigin.Name="ConstructionOrigin": work.AppendHybridShape localOrigin
+ p.Update
+ Set localAxis=p.AxisSystems.Add
+ localAxis.Name="ConstructionAxis"
+ localAxis.OriginPoint=p.CreateReferenceFromObject(localOrigin)
+ localAxis.XAxisType=1
+ localAxis.YAxisType=1
+ localAxis.PutXAxis Array(1,0,0)
+ localAxis.PutYAxis Array(0,1,0)
+ p.Update
+ Set sel=d.Selection
+ LogLine "START " & n
+End Sub
+Sub NewSketch(n,o,u,v)
+ Dim normal(2),plane,ax(8),j,supportPoint
+ normal(0)=u(1)*v(2)-u(2)*v(1)
+ normal(1)=u(2)*v(0)-u(0)*v(2)
+ normal(2)=u(0)*v(1)-u(1)*v(0)
+ Set plane=hf.AddNewPlaneEquation(normal(0),normal(1),normal(2),normal(0)*o(0)+normal(1)*o(1)+normal(2)*o(2))
+ Set supportPoint=hf.AddNewPointCoord(o(0),o(1),o(2))
+ supportPoint.PtRef=p.CreateReferenceFromObject(localOrigin)
+ supportPoint.Name=n & "_Origin"
+ pln.AppendHybridShape supportPoint
+ p.UpdateObject supportPoint
+ plane.SetReferencePoint p.CreateReferenceFromObject(supportPoint)
+ plane.Name=n & "_Plane"
+ pln.AppendHybridShape plane
+ p.UpdateObject plane
+ Set sk=ske.HybridSketches.Add(p.CreateReferenceFromObject(plane))
+ sk.Name=n
+ For j=0 To 2
+  ax(j)=o(j): ax(j+3)=u(j): ax(j+6)=v(j)
+ Next
+ sk.SetAbsoluteAxisData ax
+ Set fac=sk.OpenEdition
+End Sub
+Sub L(x1,y1,x2,y2)
+ Dim e
+ Set e=fac.CreateLine(x1,y1,x2,y2)
+End Sub
+Sub A(x,y,r,a1,a2)
+ Dim e
+ Set e=fac.CreateCircle(x,y,r,a1,a2)
+End Sub
+Sub C(x,y,r)
+ Dim e
+ Set e=fac.CreateClosedCircle(x,y,r)
+End Sub
+Sub Poly(pts)
+ Dim j,k
+ For j=0 To UBound(pts)
+  k=(j+1) Mod (UBound(pts)+1)
+  L pts(j)(0),pts(j)(1),pts(k)(0),pts(k)(1)
+ Next
+End Sub
+Sub EndSketch()
+ sk.CloseEdition
+ p.UpdateObject sk
+ p.InWorkObject=main
+End Sub
+Sub Pad(n,depth)
+ EndSketch
+ Set feat=sf.AddNewPad(sk,depth)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub Pocket(n,depth)
+ EndSketch
+ Set feat=sf.AddNewPocket(sk,depth)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub Revolve(n)
+ Dim axisLine
+ Set axisLine=fac.CreateLine(0,-50,0,250)
+ axisLine.Construction=True
+ sk.CenterLine=axisLine
+ EndSketch
+ Set feat=sf.AddNewShaft(sk)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub PlaceAt(x,y,z,xx,yy)
+ cp.X.Value=x:cp.Y.Value=y:cp.Z.Value=z
+ partAxis.XAxisType=1
+ partAxis.YAxisType=1
+ partAxis.PutXAxis xx
+ partAxis.PutYAxis yy
+ p.Update
+ p.InWorkObject=main
+ Set feat=sf.AddNewAxisToAxis2(p.CreateReferenceFromObject(localAxis),p.CreateReferenceFromObject(partAxis))
+ Set feat=main.Shapes.Item(main.Shapes.Count)
+ feat.Name="Position_From_PAS"
+ p.Update
+End Sub
+Sub FinishPart(n)
+ Dim j,spa,meas
+ p.InWorkObject=main
+ p.Update
+ sel.Clear
+ For j=1 To p.HybridBodies.Count
+  sel.Add p.HybridBodies.Item(j)
+ Next
+ For j=1 To p.AxisSystems.Count
+  sel.Add p.AxisSystems.Item(j)
+ Next
+ sel.Add p.OriginElements.PlaneXY
+ sel.Add p.OriginElements.PlaneYZ
+ sel.Add p.OriginElements.PlaneZX
+ sel.VisProperties.SetShow 1
+ sel.Clear
+ sel.Add main
+ sel.VisProperties.SetShow 0
+ sel.Clear
+ d.SaveAs root & "\editable_parts\" & n & ".CATPart"
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set meas=spa.GetMeasurable(p.CreateReferenceFromObject(main))
+ LogLine "SAVED " & n & " VOLUME_M3=" & meas.Volume & " UP_TO_DATE=" & p.IsUpToDate(p)
+ d.ExportData root & "\review\" & n & "_live.stp","stp"
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\" & n & "_live.bmp"
+ d.Close
+End Sub
+Sub LogLine(t)
+ Dim stream
+ Set stream=fso.OpenTextFile(root & "\review\live_build_log.txt",8,True)
+ stream.WriteLine t
+ stream.Close
+End Sub
+
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ CATIA.DisplayFileAlerts=False
+ BuildMC
+ BuildSensor
+ BuildPedal
+ CATIA.DisplayFileAlerts=True
+End Sub
+Sub BuildMC()
+ InitPart "MC_Inlet"
+ NewSketch "Turned_Section",Array(0,0,0),Array(1,0,0),Array(0,0,1)
+ Poly Array(Array(3,0),Array(4.55625,0),Array(5.55625,1),Array(5.55625,10),Array(9,10),Array(10.392304845,10.803847577),Array(10.392304845,13.196152423),Array(9,14),Array(3,14),Array(2.5,14.5),Array(2.5,21),Array(3,21),Array(3,21.5),Array(2,22.5),Array(1.25,22.5),Array(1.25,11.010362971),Array(3,10))
+ Revolve "Turned_Inlet"
+ NewSketch "Hex_Flats",Array(0,0,14),Array(1,0,0),Array(0,1,0)
+ C 0,0,14
+ Poly Array(Array(10.392304845,0),Array(5.196152423,9),Array(-5.196152423,9),Array(-10.392304845,0),Array(-5.196152423,-9),Array(5.196152423,-9))
+ Pocket "Hexagon_AF18",4
+ FinishPart "MC_Inlet"
+End Sub
+Sub BuildSensor()
+ InitPart "BRK_PRS_Sensor_Connection"
+ NewSketch "Turned_Section",Array(0,0,0),Array(1,0,0),Array(0,1,0)
+ Poly Array(Array(4.5,0),Array(7,0),Array(8,1),Array(8,15),Array(7,16),Array(4.76249891,16),Array(4.76249891,18.6),Array(4.1,19.26249891),Array(4.1,22.93750109),Array(4.76249891,23.6),Array(4.76249891,31.2),Array(3.76249891,32.2),Array(3,32.2),Array(3,13.5),Array(4.5,12))
+ Revolve "Turned_Sensor_Connection"
+ NewSketch "Spanner_Flats",Array(0,0,10),Array(1,0,0),Array(0,1,0)
+ Poly Array(Array(6.5,-1),Array(10,-1),Array(10,17),Array(6.5,17))
+ Poly Array(Array(-6.5,-1),Array(-10,-1),Array(-10,17),Array(-6.5,17))
+ Pocket "Flats_AF13",20
+ NewSketch "Cross_Drilling",Array(10,0,0),Array(0,1,0),Array(0,0,1)
+ C 21.1,0,1.25
+ Pocket "Radial_Fluid_Port_D2_5",20
+ FinishPart "BRK_PRS_Sensor_Connection"
+End Sub
+Sub BuildPedal()
+ InitPart "Pedal_Body"
+ NewSketch "Pedal_Outline",Array(-10,0,0),Array(0,1,0),Array(0,0,1)
+ L 7.363739727,178.174489079,-8.76259418,201.123639003
+ A 0,173.000000001,8.999999995,6.283185307,6.89572007
+ L 9,0,9,173
+ A 0,0,9,3.187637152,6.283185307
+ L -15,130,-8.990461254,-0.414254077
+ L -15,199.151266621,-15,130
+ A -11.569448469,199.151266622,3.430551531,0.612534763,3.141592654
+ Pad "Pedal_Blank_20",20
+ NewSketch "Relief_Right",Array(10,0,0),Array(0,1,0),Array(0,0,1)
+ A 0,173.000000002,9.000000001,2.042656263,4.953232008
+ A 0,173.000000007,8.999999993,1.711470802,2.042656262
+ A -1.542303675,183.89134057,2.000000001,4.853054934,6.895720069
+ L -9.363613393,198.500336349,0.094082933,185.041227031
+ A -11,197.350449888,2,0.612534762,3.141592655
+ L -13,141.825655807,-13,197.350449886
+ A -11.500000001,141.825655805,1.499999999,3.141592652,5.694538135
+ L -10.252461132,140.992801212,3.752013639,161.970204389
+ A 2.504474772,162.803058982,1.499999999,5.694538134,8.094824661
+ L 7,97.199596062,7,60.136069095
+ A 5.5,97.199596064,1.5,6.283185306,8.79292411
+ L 4.2895991,98.085558625,-9.910650695,78.685195832
+ A -8.700249796,77.799233269,1.499999999,2.509738801,3.818735742
+ L -9.869298719,76.859379763,4.330951074,59.196215591
+ A 5.5,60.136069095,1.5,3.81873574,6.283185307
+ L 6.278825041,53.581340572,-7.555477314,70.789316295
+ A -8.724526239,69.849462788,1.500000001,0.677143088,3.187640461
+ L -8.657594217,35.810602091,-10.22293622,69.780415485
+ A -7.159184236,35.879649397,1.5,3.187640462,5.651331455
+ L -5.948783336,34.993686834,6.320177015,51.755524505
+ A 5.109776115,52.641487068,1.5,5.651331455,6.960328394
+ L 2.841493066,11.305804044,-5.279956972,21.407774603
+ A -6.449005897,20.467921098,1.5,0.677143087,3.187640462
+ L -7.44359502,9.465352248,-7.947415877,20.398873793
+ A -5.445715046,9.557415323,2.000000001,3.187640463,5.230289519
+ A 0,1.9e-8,8.999999982,1.410834628,2.088707997
+ A 1.672444142,10.36595054,1.499999999,4.552427281,6.960328394
+ L -7.593778377,27.477838073,4.330951074,12.645109275
+ A 5.499999999,13.584962783,1.500000001,3.818735742,6.283185306
+ L 7,49.298150185,7,13.584962781
+ L 7,49.298150185,-7.635130351,29.30365414
+ A -6.424729452,28.417691577,1.5,2.509738801,3.81873574
+ L -12.310562635,132.386332048,4.330951074,111.686570212
+ A 5.499999999,112.62642372,1.500000001,3.818735742,6.283185306
+ L 7,158.253628265,7,112.626423718
+ A 5.500000001,158.253628267,1.499999999,6.283185306,8.836130789
+ L 4.252461132,159.086482858,-12.389052577,134.159040147
+ A -11.141513711,133.326185553,1.499999999,2.552945479,3.818735741
+ L -8.224303678,84.375228526,6.320177015,104.245879127
+ A 5.109776115,105.131841689,1.5,5.651331455,6.960328394
+ L 6.278825041,106.071695194,-10.121321162,126.471228939
+ A -11.290370087,125.531375434,1.5,0.677143087,3.187640462
+ L -10.933114558,85.192143783,-12.788780067,125.462328129
+ A -9.434704578,85.261191086,1.5,3.187640461,5.651331457
+ Pocket "Relief_Right_6",6
+ NewSketch "Relief_Left",Array(-10,0,0),Array(0,-1,0),Array(0,0,1)
+ A 0,173.000000002,9.000000001,4.471545953,7.382121698
+ A 0,173.000000007,8.999999993,1.098936391,1.430121852
+ A 1.542303675,183.89134057,2.000000001,2.529057891,4.571723027
+ L 9.363613393,198.500336349,-0.094082933,185.041227031
+ A 11,197.350449888,2,6.283185306,8.812243198
+ L 13,141.825655807,13,197.350449886
+ A 11.500000001,141.825655805,1.499999999,3.730239826,6.283185309
+ L 10.252461132,140.992801212,-3.752013639,161.970204389
+ A -2.504474772,162.803058982,1.499999999,1.329953299,3.730239827
+ L -7,97.199596062,-7,60.136069095
+ A -5.5,97.199596064,1.5,0.631853851,3.141592655
+ L -4.2895991,98.085558625,9.910650695,78.685195832
+ A 8.700249796,77.799233269,1.499999999,5.606042219,6.91503916
+ L 9.869298719,76.859379763,-4.330951074,59.196215591
+ A -5.5,60.136069095,1.5,3.141592654,5.606042221
+ L -6.278825041,53.581340572,7.555477314,70.789316295
+ A 8.724526239,69.849462788,1.500000001,6.2371375,8.747634873
+ L 8.657594217,35.810602091,10.22293622,69.780415485
+ A 7.159184236,35.879649397,1.5,3.773446506,6.237137498
+ L 5.948783336,34.993686834,-6.320177015,51.755524505
+ A -5.109776115,52.641487068,1.5,2.464449567,3.773446506
+ L -2.841493066,11.305804044,5.279956972,21.407774603
+ A 6.449005897,20.467921098,1.5,6.237137499,8.747634874
+ L 7.44359502,9.465352248,7.947415877,20.398873793
+ A 5.445715046,9.557415323,2.000000001,4.194488442,6.237137498
+ A 0,1.9e-8,8.999999982,1.052884656,1.730758026
+ A -1.672444142,10.36595054,1.499999999,2.464449567,4.87235068
+ L 7.593778377,27.477838073,-4.330951074,12.645109275
+ A -5.499999999,13.584962783,1.500000001,3.141592654,5.606042219
+ L -7,49.298150185,-7,13.584962781
+ L -7,49.298150185,7.635130351,29.30365414
+ A 6.424729452,28.417691577,1.5,5.606042221,6.915039159
+ L 12.310562635,132.386332048,-4.330951074,111.686570212
+ A -5.499999999,112.62642372,1.500000001,3.141592655,5.606042218
+ L -7,158.253628265,-7,112.626423718
+ A -5.500000001,158.253628267,1.499999999,0.588647172,3.141592655
+ L -4.252461132,159.086482858,12.389052577,134.159040147
+ A 11.141513711,133.326185553,1.499999999,5.60604222,6.871832481
+ L 8.224303678,84.375228526,-6.320177015,104.245879127
+ A -5.109776115,105.131841689,1.5,2.464449567,3.773446506
+ L -6.278825041,106.071695194,10.121321162,126.471228939
+ A 11.290370087,125.531375434,1.5,6.237137499,8.747634874
+ L 10.933114558,85.192143783,12.788780067,125.462328129
+ A 9.434704578,85.261191086,1.5,3.773446504,6.2371375
+ Pocket "Relief_Left_6",6
+ NewSketch "Pivot_And_Shaft_Bores",Array(10,0,0),Array(0,1,0),Array(0,0,1)
+ C 0,0,4
+ C 0,173,5
+ Pocket "Through_Bores_D8_D10",20
+ NewSketch "Mounting_Bores",Array(0,-15,0),Array(1,0,0),Array(0,0,1)
+ C 0,152.438941558,2.067
+ C 0,186.440654138,2.067
+ Pocket "Mounting_Bores_D4_134",10
+ PlaceAt -440,-61.5,10.5,Array(0,1,0),Array(-1,0,0)
+ FinishPart "Pedal_Body"
+End Sub
+
+
+
+
+
+Sub CloseDrafts()
+ Dim j,doc
+ For j=CATIA.Documents.Count To 1 Step -1
+  Set doc=CATIA.Documents.Item(j)
+  If InStr(doc.FullName,"\CAD_Project\live_parts\")>0 Then doc.Close
+ Next
+End Sub
+

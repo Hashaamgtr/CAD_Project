@@ -1,0 +1,40 @@
+Language="VBSCRIPT"
+Dim p,r
+Sub CATMain()
+ Dim d,i,pt
+ Set r=CreateObject("Scripting.FileSystemObject").CreateTextFile("C:\Users\Hashaam\Documents\CAD_Project\review\platform_diagnosis.txt",True)
+ For i=1 To CATIA.Documents.Count
+ Set d=CATIA.Documents.Item(i)
+ r.WriteLine d.Name & " " & d.FullName
+ If d.FullName="C:\Users\Hashaam\Documents\CAD_Project\final_parts\Brake_Platform_2.CATPart" Then
+ Set p=d.Part
+ Walk p
+ End If
+ Next
+ r.Close
+End Sub
+Sub Walk(o)
+ Dim k,col,j,c
+ For Each k In Array("Bodies","HybridBodies","OrderedGeometricalSets","HybridShapes","Shapes","Sketches")
+ Set col=Nothing
+ On Error Resume Next
+ Select Case k
+ Case "Bodies":Set col=o.Bodies
+ Case "HybridBodies":Set col=o.HybridBodies
+ Case "OrderedGeometricalSets":Set col=o.OrderedGeometricalSets
+ Case "HybridShapes":Set col=o.HybridShapes
+ Case "Shapes":Set col=o.Shapes
+ Case "Sketches":Set col=o.Sketches
+ End Select
+ On Error GoTo 0
+ If Not col Is Nothing Then
+ For j=1 To col.Count
+ Set c=col.Item(j)
+ On Error Resume Next
+ r.WriteLine k & " " & c.Name & " Updated=" & p.IsUpToDate(c)
+ On Error GoTo 0
+ If k="Bodies" Or k="HybridBodies" Or k="OrderedGeometricalSets" Then Walk c
+ Next
+ End If
+ Next
+End Sub

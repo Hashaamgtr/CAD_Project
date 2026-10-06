@@ -1,0 +1,8 @@
+*.CATPart binary
+*.CATProduct binary
+*.bmp binary
+*.png binary
+*.jpg binary
+*.stp -text
+*.CATScript -text
+*.vbs -text

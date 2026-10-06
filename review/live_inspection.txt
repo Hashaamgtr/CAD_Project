@@ -1,0 +1,11 @@
+C:\Users\Hashaam\Documents\CAD_Project\live_parts\Pedal_Body.CATPart
+MAIN
+Pedal_Blank_20 Pad
+Relief_Right_6 Pocket
+Relief_Left_6 Pocket
+Through_Bores_D8_D10 Pocket
+Mounting_Bores_D4_134 Pocket
+Axis to axis transformation.1 AxisToAxis
+MC_Inlet Body.2 VOLUME_M3=1.88124052058092E-06
+BRK_PRS_Sensor_Connection Body.2 VOLUME_M3=2.57117897136689E-06
+Pedal_Body Brake_pedal VOLUME_M3=3.93124069892468E-05

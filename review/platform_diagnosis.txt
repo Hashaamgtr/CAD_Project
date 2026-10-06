@@ -1,0 +1,112 @@
+Brake_Pedal_Assembly.CATProduct C:\Users\Hashaam\Documents\Brake_Pedal_Assembly.CATProduct
+Pedal_Body.CATPart C:\Users\Hashaam\Documents\Pedal_Body.CATPart
+Brake_Platform_2.CATPart C:\Users\Hashaam\Documents\CAD_Project\final_parts\Brake_Platform_2.CATPart
+Bodies MAIN Updated=False
+Shapes Add.4 Updated=False
+Bodies SUB_BASE Updated=True
+HybridBodies References Updated=True
+Shapes Pad.1 Updated=True
+Shapes Pad.2 Updated=True
+Sketches Groove Updated=True
+Sketches Base Updated=True
+Bodies SUB_Holders Updated=True
+HybridBodies References Updated=True
+HybridShapes Pedal_hole Updated=True
+HybridShapes Holders_Cut Updated=True
+HybridShapes BB_hole1 Updated=True
+HybridShapes BB_hole2 Updated=True
+Shapes Holders_Extrusion Updated=True
+Shapes Solid Split Updated=True
+Shapes BB_hole_2_split Updated=True
+Shapes BB_hole_1_split Updated=True
+Shapes Pedal_hole_Split Updated=True
+Sketches Holders_Extrusion Updated=True
+Bodies SUB_Wall Updated=True
+HybridBodies References Updated=True
+Shapes Pad.4 Updated=True
+Sketches Wall Updated=True
+Bodies INT_Platform Updated=False
+Shapes Base Updated=True
+Shapes Holders Updated=True
+Shapes Wall Updated=True
+Shapes EdgeFillet.1 Updated=False
+Shapes EdgeFillet.2 Updated=False
+Shapes EdgeFillet.3 Updated=False
+Bodies SUB_BASE Updated=True
+Shapes Solid.1 Updated=True
+Bodies SUB_Holders Updated=True
+Shapes Solid.2 Updated=True
+Bodies SUB_Wall Updated=True
+Shapes Solid.3 Updated=True
+Bodies INT_Platform Updated=False
+Shapes Solid.4 Updated=False
+OrderedGeometricalSets Part Axis System Updated=True
+HybridShapes Center Point Updated=True
+HybridShapes XY_Plane Updated=True
+HybridShapes YZ_Plane Updated=True
+HybridShapes ZX_Plane Updated=True
+OrderedGeometricalSets IMPORT Updated=True
+OrderedGeometricalSets EXPORT Updated=True
+OrderedGeometricalSets PLANES Updated=True
+OrderedGeometricalSets Base Updated=True
+HybridShapes BaseZ1 Updated=True
+HybridShapes BaseZ2 Updated=True
+HybridShapes BaseY0 Updated=True
+HybridShapes BaseY1+ Updated=True
+HybridShapes BaseY1- Updated=True
+HybridShapes BaseY2+ Updated=True
+HybridShapes BaseY2- Updated=True
+HybridShapes BaseX1 Updated=True
+HybridShapes BaseX2 Updated=True
+HybridShapes BaseX3 Updated=True
+HybridShapes GrooveY1+ Updated=True
+HybridShapes GrooveY1- Updated=True
+HybridShapes GrooveY2+ Updated=True
+HybridShapes GrooveY2- Updated=True
+HybridShapes GrooveX1 Updated=True
+HybridShapes GrooveX2 Updated=True
+HybridShapes GrooveX3 Updated=True
+HybridShapes GrooveZ Updated=True
+OrderedGeometricalSets Holders Updated=True
+HybridShapes HolderZ Updated=True
+HybridShapes PedalY1+ Updated=True
+HybridShapes PedalY2+ Updated=True
+HybridShapes PedalY1- Updated=True
+HybridShapes PedalY2- Updated=True
+HybridShapes PedalX1 Updated=True
+HybridShapes PedalX2 Updated=True
+HybridShapes BBY1+ Updated=True
+HybridShapes BBY2+ Updated=True
+HybridShapes BBY1- Updated=True
+HybridShapes BBY2- Updated=True
+HybridShapes BBX2 Updated=True
+HybridShapes BBX1 Updated=True
+OrderedGeometricalSets WALL Updated=True
+HybridShapes WallZ Updated=True
+HybridShapes wallX Updated=True
+HybridShapes WallY+ Updated=True
+HybridShapes Wall Y- Updated=True
+OrderedGeometricalSets SKETCHES Updated=True
+OrderedGeometricalSets Base Updated=True
+OrderedGeometricalSets Holders Updated=True
+HybridShapes Pedal_hole Updated=True
+HybridShapes BB_Hole1 Updated=True
+HybridShapes BB_Hole2 Updated=True
+OrderedGeometricalSets WORK Updated=False
+OrderedGeometricalSets Holders Updated=False
+HybridShapes Holders_Cut Updated=True
+HybridShapes Pedal_hole Updated=True
+HybridShapes BB_hole1 Updated=True
+HybridShapes BB_hole2 Updated=True
+Banjo.CATPart Banjo.CATPart
+Part4.CATPart Part4.CATPart
+MC_Inlet.CATPart MC_Inlet.CATPart
+Part6.CATPart Part6.CATPart
+Part7.CATPart Part7.CATPart
+MC_Inlet.CATPart C:\Users\Hashaam\Documents\CAD_Project\parts\MC_Inlet.CATPart
+Part9.CATPart Part9.CATPart
+Part10.CATPart Part10.CATPart
+Pedal_Body.CATPart C:\Users\Hashaam\Documents\CAD_Project\live_parts\Pedal_Body.CATPart
+MC_Inlet.CATPart C:\Users\Hashaam\Documents\CAD_Project\live_parts\MC_Inlet.CATPart
+BRK_PRS_Sensor_Connection.CATPart C:\Users\Hashaam\Documents\CAD_Project\live_parts\BRK_PRS_Sensor_Connection.CATPart
+Part14.CATPart Part14.CATPart

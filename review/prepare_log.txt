@@ -1,0 +1,71 @@
+IMPORT Banjo
+TYPE PartDocument Part5.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Banjo_Reference.CATPart
+IMPORT Bolt_M5x40
+TYPE PartDocument Bolt_M5x40.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Bolt_M5x40_Reference.CATPart
+IMPORT BRK_PRS_Sensor
+TYPE PartDocument BRK_PRS_Sensor.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\BRK_PRS_Sensor_Reference.CATPart
+IMPORT BRK_PRS_Sensor_Connection
+TYPE PartDocument BRK_PRS_Sensor_Connection.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\BRK_PRS_Sensor_Connection_Reference.CATPart
+IMPORT Copper_Washer
+TYPE PartDocument Copper_Washer.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Copper_Washer_Reference.CATPart
+IMPORT Fitted_Bolt_M6_8x30
+TYPE PartDocument Fitted_Bolt_M6_8x30.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Fitted_Bolt_M6_8x30_Reference.CATPart
+IMPORT Hex_Bolt_M6x60
+TYPE PartDocument Hex_Bolt_M6x60.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Hex_Bolt_M6x60_Reference.CATPart
+IMPORT Low_Head_M4x20
+TYPE PartDocument Low_Head_M4x20.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Low_Head_M4x20_Reference.CATPart
+IMPORT MC_Inlet
+TYPE PartDocument MC_Inlet.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\MC_Inlet_Reference.CATPart
+IMPORT Nut_M5
+TYPE PartDocument Nut_M5.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Nut_M5_Reference.CATPart
+IMPORT Nut_M6
+TYPE PartDocument Nut_M6.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Nut_M6_Reference.CATPart
+IMPORT Pedal_Body
+TYPE PartDocument Pedal_Body.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Pedal_Body_Reference.CATPart
+IMPORT Reservoir
+TYPE PartDocument Reservoir.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Reservoir_Reference.CATPart
+IMPORT Reservoir_Distance
+TYPE PartDocument Reservoir_Distance.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Reservoir_Distance_Reference.CATPart
+IMPORT Setscrew_M4x8
+TYPE PartDocument Setscrew_M4x8.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Setscrew_M4x8_Reference.CATPart
+IMPORT Tilton_Set
+TYPE ProductDocument Tilton_Set.CATProduct
+TYPE PartDocument 4876.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Tilton_Set_1_Reference.CATPart
+TYPE PartDocument 4876_1.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Tilton_Set_2_Reference.CATPart
+TYPE PartDocument 4784.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Tilton_Set_3_Reference.CATPart
+TYPE PartDocument Brake_bias_90_degree_coupler.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Tilton_Set_4_Reference.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Tilton_Set_Reference.CATProduct
+IMPORT Washer_5
+TYPE PartDocument Washer_5.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Washer_5_Reference.CATPart
+IMPORT Washer_6
+TYPE PartDocument Washer_6.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Washer_6_Reference.CATPart
+IMPORT Washer_8
+TYPE PartDocument Washer_8.CATPart
+SAVED C:\Users\Hashaam\Documents\CAD_Project\parts\Washer_8_Reference.CATPart
+MODEL Brake_Pedal_Shaft.CATPart
+MODEL Foot_Plate.CATPart
+MODEL Part 2&3.CATPart
+MODEL Part1.CATPart
+MODEL Reservoir_Holderr.CATPart
+DONE

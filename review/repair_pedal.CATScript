@@ -1,0 +1,26 @@
+Language="VBSCRIPT"
+Sub CATMain()
+ Dim d,p,fso,log,f,ax(8),dir(2),spa,m,s
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile("C:\Users\Hashaam\Documents\CAD_Project\review\pedal_repair.txt",True)
+ Set d=CATIA.Documents.Open("C:\Users\Hashaam\Documents\CAD_Project\editable_parts\Pedal_Body.CATPart")
+ d.Activate
+ Set p=d.Part
+ Set f=p.FindObjectByName("Relief_Left_6")
+ f.GetDirection dir
+ log.WriteLine "Left direction " & Join(dir,",") & " orientation " & f.DirectionOrientation
+ Set s=p.FindObjectByName("Relief_Left")
+ s.GetAbsoluteAxisData ax
+ log.WriteLine "Sketch axes " & Join(ax,",")
+ f.DirectionOrientation=1-f.DirectionOrientation
+ p.Update
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set m=spa.GetMeasurable(p.CreateReferenceFromObject(p.MainBody))
+ log.WriteLine "Volume " & m.Volume
+ d.Save
+ d.ExportData "C:\Users\Hashaam\Documents\CAD_Project\review\Pedal_Body_live.stp","stp"
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,"C:\Users\Hashaam\Documents\CAD_Project\review\Pedal_Body_live.bmp"
+ log.Close
+ d.Close
+End Sub

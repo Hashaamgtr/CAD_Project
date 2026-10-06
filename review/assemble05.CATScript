@@ -1,0 +1,57 @@
+Language="VBSCRIPT"
+Dim root,d,p,hf,sf,b,gs,pt,cp,a0,a1,ap,sel,prod,ad,log
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set log=CreateObject("Scripting.FileSystemObject").CreateTextFile(root & "\review\task05_report.txt",True)
+ Set d=CATIA.Documents.Open(root & "\parts\Pedal_Body_Reference.CATPart")
+ d.SaveAs root & "\final_parts\Pedal_Body_Imported.CATPart"
+ Set p=d.Part:Set hf=p.HybridShapeFactory:Set sf=p.ShapeFactory:Set b=p.MainBody:Set sel=d.Selection
+ Set gs=p.HybridBodies.Add:gs.Name="CAS"
+ Set pt=hf.AddNewPointCoord(0,0,0):pt.Name="Origin":gs.AppendHybridShape pt:p.Update
+ Set a0=p.AxisSystems.Add:a0.Name="AxisSystem0":a0.OriginPoint=p.CreateReferenceFromObject(pt)
+ a0.XAxisType=1:a0.YAxisType=1:a0.PutXAxis Array(1,0,0):a0.PutYAxis Array(0,1,0)
+ Set a1=p.AxisSystems.Add:a1.Name="AxisSystem1":a1.OriginPoint=p.CreateReferenceFromObject(pt)
+ a1.XAxisType=1:a1.YAxisType=1:a1.PutXAxis Array(0,-1,0):a1.PutYAxis Array(1,0,0)
+ p.Update:p.InWorkObject=b
+ sf.AddNewAxisToAxis2 p.CreateReferenceFromObject(a1),p.CreateReferenceFromObject(a0)
+ b.Shapes.Item(b.Shapes.Count).Name="Correct_Imported_Orientation":p.Update
+ Set gs=p.HybridBodies.Add:gs.Name="Position"
+ Set cp=hf.AddNewPointCoord(-440,-61.5,10.5):cp.Name="CenterPoint":gs.AppendHybridShape cp:p.Update
+ Set ap=p.AxisSystems.Add:ap.Name="PAS":ap.OriginPoint=p.CreateReferenceFromObject(cp)
+ ap.XAxisType=1:ap.YAxisType=1:ap.PutXAxis Array(1,0,0):ap.PutYAxis Array(0,1,0)
+ p.Update:p.InWorkObject=b
+ sf.AddNewAxisToAxis2 p.CreateReferenceFromObject(a0),p.CreateReferenceFromObject(ap)
+ b.Shapes.Item(b.Shapes.Count).Name="Position_From_PAS":p.Update
+ sel.Clear
+ Dim j
+ For j=1 To p.HybridBodies.Count:sel.Add p.HybridBodies.Item(j):Next
+ For j=1 To p.AxisSystems.Count:sel.Add p.AxisSystems.Item(j):Next
+ sel.Add p.OriginElements.PlaneXY:sel.Add p.OriginElements.PlaneYZ:sel.Add p.OriginElements.PlaneZX
+ sel.VisProperties.SetShow 1:sel.Clear
+ d.Save
+ log.WriteLine "Imported pedal updated=" & p.IsUpToDate(p)
+ Set ad=CATIA.Documents.Add("Product"):Set prod=ad.Product:prod.PartNumber="Brake_Pedal_Assembly_05"
+ AddPart "final_parts\Brake_Platform_2.CATPart","Platform",Array(1,0,0,0,1,0,0,0,1,0,0,0)
+ AddPart "final_parts\Pedal_Body_Imported.CATPart","Pedal_Body",Array(1,0,0,0,1,0,0,0,1,0,0,0)
+ AddPart "parts\Fitted_Bolt_M6_8x30_Reference.CATPart","Pivot_Bolt",Array(1,0,0,0,0,1,0,-1,0,-440,-77.1,10.5)
+ AddPart "parts\Washer_8_Reference.CATPart","Pivot_Washer_8",Array(1,0,0,0,0,-1,0,1,0,-440,-77.1,10.5)
+ AddPart "parts\Washer_6_Reference.CATPart","Pivot_Washer_6",Array(1,0,0,0,0,-1,0,1,0,-440,-47.5,10.5)
+ AddPart "parts\Nut_M6_Reference.CATPart","Pivot_Nut_M6",Array(1,0,0,0,1,0,0,0,1,-440,-45.9,10.5)
+ prod.Update
+ ad.SaveAs root & "\Brake_Pedal_Assembly_05.CATProduct"
+ log.WriteLine "Components=" & prod.Products.Count
+ log.WriteLine "Saved=" & ad.FullName
+ ad.Activate
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\Task05_Assembly.bmp"
+ log.Close
+End Sub
+Sub AddPart(file,n,t)
+ Dim c,files(0)
+ files(0)=root & "\" & file
+ prod.Products.AddComponentsFromFiles files,"All"
+ Set c=prod.Products.Item(prod.Products.Count)
+ c.Name=n
+ c.Position.SetComponents t
+ log.WriteLine n & " | " & c.ReferenceProduct.Parent.FullName
+End Sub

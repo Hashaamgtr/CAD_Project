@@ -1,0 +1,4 @@
+Brake_Platform_2 | volume=3.45929323556663E-05 | updated=True | path=C:\Users\Hashaam\Documents\CAD_Project\final_parts\Brake_Platform_2.CATPart
+Brake_Pedal_Shaft | volume=6.00639968651768E-06 | updated=True | path=C:\Users\Hashaam\Documents\CAD_Project\final_parts\Brake_Pedal_Shaft.CATPart
+Reservoir_Holder | volume=1.29908917589642E-05 | updated=True | path=C:\Users\Hashaam\Documents\CAD_Project\final_parts\Reservoir_Holder.CATPart
+Foot_Plate | volume=2.9455816840723E-05 | updated=True | path=C:\Users\Hashaam\Documents\CAD_Project\final_parts\Foot_Plate.CATPart

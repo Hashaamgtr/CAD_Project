@@ -1,0 +1,143 @@
+Dim d,p,hf,sf,main,ske,pln,pas,work,cp,localOrigin,localAxis,partAxis,sk,fac,feat,sel,log,root,fso
+Sub InitPart(n)
+ Set d=CATIA.Documents.Add("Part")
+ Set p=d.Part
+ d.Product.PartNumber=n
+ Set hf=p.HybridShapeFactory
+ Set sf=p.ShapeFactory
+ Set main=p.MainBody
+ main.Name="MAIN"
+ Set pas=p.HybridBodies.Add: pas.Name="PAS"
+ Set cp=hf.AddNewPointCoord(0,0,0): cp.Name="CenterPoint": pas.AppendHybridShape cp
+ Set partAxis=p.AxisSystems.Add
+ partAxis.Name="PartAxisSystem"
+ partAxis.OriginPoint=p.CreateReferenceFromObject(cp)
+ partAxis.PutXAxis Array(1,0,0)
+ partAxis.PutYAxis Array(0,1,0)
+ Dim g
+ Set g=p.HybridBodies.Add: g.Name="IMPORT"
+ Set g=p.HybridBodies.Add: g.Name="EXPORT"
+ Set pln=p.HybridBodies.Add: pln.Name="PLN"
+ Set ske=p.HybridBodies.Add: ske.Name="SKE"
+ Set work=p.HybridBodies.Add: work.Name="WORK"
+ Set localOrigin=hf.AddNewPointCoord(0,0,0): localOrigin.Name="ConstructionOrigin": work.AppendHybridShape localOrigin
+ Set localAxis=p.AxisSystems.Add
+ localAxis.Name="ConstructionAxis"
+ localAxis.OriginPoint=p.CreateReferenceFromObject(localOrigin)
+ localAxis.PutXAxis Array(1,0,0)
+ localAxis.PutYAxis Array(0,1,0)
+ p.Update
+ Set sel=d.Selection
+ LogLine "START " & n
+End Sub
+Sub NewSketch(n,o,u,v)
+ Dim normal(2),plane,ax(8),j
+ normal(0)=u(1)*v(2)-u(2)*v(1)
+ normal(1)=u(2)*v(0)-u(0)*v(2)
+ normal(2)=u(0)*v(1)-u(1)*v(0)
+ Set plane=hf.AddNewPlaneEquation(normal(0),normal(1),normal(2),normal(0)*o(0)+normal(1)*o(1)+normal(2)*o(2))
+ plane.SetReferencePoint p.CreateReferenceFromObject(localOrigin)
+ plane.Name=n & "_Plane"
+ pln.AppendHybridShape plane
+ p.UpdateObject plane
+ Set sk=ske.HybridSketches.Add(p.CreateReferenceFromObject(plane))
+ sk.Name=n
+ For j=0 To 2
+  ax(j)=o(j): ax(j+3)=u(j): ax(j+6)=v(j)
+ Next
+ sk.SetAbsoluteAxisData ax
+ Set fac=sk.OpenEdition
+End Sub
+Sub L(x1,y1,x2,y2)
+ Dim e
+ Set e=fac.CreateLine(x1,y1,x2,y2)
+End Sub
+Sub A(x,y,r,a1,a2)
+ Dim e
+ Set e=fac.CreateCircle(x,y,r,a1,a2)
+End Sub
+Sub C(x,y,r)
+ Dim e
+ Set e=fac.CreateClosedCircle(x,y,r)
+End Sub
+Sub Poly(pts)
+ Dim j,k
+ For j=0 To UBound(pts)
+  k=(j+1) Mod (UBound(pts)+1)
+  L pts(j)(0),pts(j)(1),pts(k)(0),pts(k)(1)
+ Next
+End Sub
+Sub EndSketch()
+ sk.CloseEdition
+ p.UpdateObject sk
+ p.InWorkObject=main
+End Sub
+Sub Pad(n,depth)
+ EndSketch
+ Set feat=sf.AddNewPad(sk,depth)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub Pocket(n,depth)
+ EndSketch
+ Set feat=sf.AddNewPocket(sk,depth)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub Revolve(n)
+ Dim axisLine
+ Set axisLine=fac.CreateLine(0,-50,0,250)
+ axisLine.Construction=True
+ Set sk.CenterLine=axisLine
+ EndSketch
+ Set feat=sf.AddNewShaft(sk)
+ feat.Name=n
+ p.Update
+ LogLine n
+End Sub
+Sub PlaceAt(x,y,z,xx,yy)
+ cp.X.Value=x:cp.Y.Value=y:cp.Z.Value=z
+ partAxis.PutXAxis xx
+ partAxis.PutYAxis yy
+ p.Update
+ p.InWorkObject=main
+ Set feat=sf.AddNewAxisToAxis2(p.CreateReferenceFromObject(localAxis),p.CreateReferenceFromObject(partAxis))
+ feat.Name="Position_From_PAS"
+ p.Update
+End Sub
+Sub FinishPart(n)
+ Dim j,spa,meas
+ p.InWorkObject=main
+ p.Update
+ sel.Clear
+ For j=1 To p.HybridBodies.Count
+  sel.Add p.HybridBodies.Item(j)
+ Next
+ For j=1 To p.AxisSystems.Count
+  sel.Add p.AxisSystems.Item(j)
+ Next
+ sel.Add p.OriginElements.PlaneXY
+ sel.Add p.OriginElements.PlaneYZ
+ sel.Add p.OriginElements.PlaneZX
+ sel.VisProperties.SetShow 1
+ sel.Clear
+ sel.Add main
+ sel.VisProperties.SetShow 0
+ sel.Clear
+ d.SaveAs root & "\parts\" & n & ".CATPart"
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set meas=spa.GetMeasurable(p.CreateReferenceFromObject(main))
+ LogLine "SAVED " & n & " VOLUME_M3=" & meas.Volume & " UP_TO_DATE=" & p.IsUpToDate(p)
+ d.ExportData root & "\review\" & n & "_live.stp","stp"
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\" & n & "_live.bmp"
+ d.Close
+End Sub
+Sub LogLine(t)
+ Dim stream
+ Set stream=fso.OpenTextFile(root & "\review\live_build_log.txt",8,True)
+ stream.WriteLine t
+ stream.Close
+End Sub

@@ -1,0 +1,93 @@
+Language="VBSCRIPT"
+Dim root,fso,d,p,hf,sf,main,sel,report
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set report=fso.CreateTextFile(root & "\review\existing_position_report.txt",True)
+ CATIA.DisplayFileAlerts=False
+ Set d=CATIA.Documents.Item("Brake_Platform_2.CATPart")
+ Set p=d.Part:Set hf=p.HybridShapeFactory:Set sf=p.ShapeFactory:Set main=p.MainBody:Set sel=d.Selection
+ Dim pt
+ Set pt=p.FindObjectByName("Center Point")
+ pt.X.Value=0:pt.Y.Value=0:pt.Z.Value=0
+ pt.Name="Construction Center Point"
+ p.Update
+ PlaceBody -440,-90.5,-8.5
+ SaveCopy "Brake_Platform_2"
+ OpenCopy "Brake_Pedal_Shaft.CATPart","Brake_Pedal_Shaft"
+ PlaceBody -440,-61.5,183.5
+ SaveCopy "Brake_Pedal_Shaft"
+ OpenCopy "Reservoir_Holderr.CATPart","Reservoir_Holder"
+ sel.Clear
+ sel.Add p.Bodies.Item("MAIN")
+ sel.Delete
+ Set main=p.MainBody
+ main.Name="MAIN"
+ p.InWorkObject=main
+ sf.AddNewAdd p.Bodies.Item("INT_Holder")
+ p.Update
+ PlaceBody -425,-61.5,162.938941558
+ SaveCopy "Reservoir_Holder"
+ OpenCopy "Foot_Plate.CATPart","Foot_Plate"
+ Set pt=p.FindObjectByName("CenterPoint")
+ pt.Z.Value=162.938941558
+ p.Update
+ SaveCopy "Foot_Plate"
+ report.Close
+ CATIA.DisplayFileAlerts=True
+End Sub
+Sub OpenCopy(src,n)
+ Set d=CATIA.Documents.Open(root & "\source_copies\" & src)
+ d.Activate
+ d.SaveAs root & "\final_parts\" & n & ".CATPart"
+ Set p=d.Part
+ Set hf=p.HybridShapeFactory
+ Set sf=p.ShapeFactory
+ Set main=p.MainBody
+ Set sel=d.Selection
+End Sub
+Sub PlaceBody(x,y,z)
+ Dim gs,orig,target,aa,bb,feat
+ Set gs=p.HybridBodies.Add:gs.Name="Assembly_Position"
+ Set orig=hf.AddNewPointCoord(0,0,0):orig.Name="ConstructionOrigin":gs.AppendHybridShape orig
+ Set target=hf.AddNewPointCoord(x,y,z):target.Name="CenterPoint":gs.AppendHybridShape target
+ p.Update
+ Set aa=p.AxisSystems.Add:aa.Name="ConstructionAxis"
+ aa.OriginPoint=p.CreateReferenceFromObject(orig)
+ aa.XAxisType=1:aa.YAxisType=1
+ aa.PutXAxis Array(1,0,0):aa.PutYAxis Array(0,1,0)
+ Set bb=p.AxisSystems.Add:bb.Name="Assembly_PAS"
+ bb.OriginPoint=p.CreateReferenceFromObject(target)
+ bb.XAxisType=1:bb.YAxisType=1
+ bb.PutXAxis Array(1,0,0):bb.PutYAxis Array(0,1,0)
+ p.Update
+ p.InWorkObject=main
+ sf.AddNewAxisToAxis2 p.CreateReferenceFromObject(aa),p.CreateReferenceFromObject(bb)
+ Set feat=main.Shapes.Item(main.Shapes.Count)
+ feat.Name="Position_From_PAS"
+ p.Update
+End Sub
+Sub SaveCopy(n)
+ Dim j,spa,m
+ p.InWorkObject=main
+ p.Update
+ sel.Clear
+ For j=1 To p.HybridBodies.Count:sel.Add p.HybridBodies.Item(j):Next
+ For j=1 To p.OrderedGeometricalSets.Count:sel.Add p.OrderedGeometricalSets.Item(j):Next
+ For j=1 To p.AxisSystems.Count:sel.Add p.AxisSystems.Item(j):Next
+ For j=1 To p.Bodies.Count
+  If Not p.Bodies.Item(j) Is main Then sel.Add p.Bodies.Item(j)
+ Next
+ sel.Add p.OriginElements.PlaneXY:sel.Add p.OriginElements.PlaneYZ:sel.Add p.OriginElements.PlaneZX
+ sel.VisProperties.SetShow 1:sel.Clear
+ sel.Add main:sel.VisProperties.SetShow 0:sel.Clear
+ d.Save
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set m=spa.GetMeasurable(p.CreateReferenceFromObject(main))
+ report.WriteLine n & " | volume=" & m.Volume & " | updated=" & p.IsUpToDate(p) & " | path=" & d.FullName
+ d.ExportData root & "\review\" & n & "_positioned.stp","stp"
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\" & n & "_positioned.bmp"
+ d.Close
+End Sub
+
