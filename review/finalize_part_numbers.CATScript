@@ -1,7 +1,7 @@
 Language="VBSCRIPT"
 Dim root,fso,log
 Sub CATMain()
- root="C:\Users\Hashaam\Documents\CAD_Project"
+ root=ResolveRoot()
  Set fso=CreateObject("Scripting.FileSystemObject")
  Set log=fso.CreateTextFile(root & "\review\part_number_finalize_report.txt",True)
  FixOne "MC_Inlet"
@@ -9,26 +9,27 @@ Sub CATMain()
  FixOne "Pedal_Body"
  log.Close
 End Sub
-
 Sub FixOne(n)
  Dim pth,d
  pth=root & "\final_parts\" & n & ".CATPart"
- If Not fso.FileExists(pth) Then
-  log.WriteLine "MISSING " & pth
-  Exit Sub
- End If
+ If Not fso.FileExists(pth) Then log.WriteLine "MISSING " & pth:Exit Sub
  On Error Resume Next
  Set d=CATIA.Documents.Open(pth)
- If Err.Number<>0 Then
-  log.WriteLine "OPEN FAILED " & n & " ERR=" & Err.Description
-  Err.Clear
-  On Error GoTo 0
-  Exit Sub
- End If
+ If Err.Number<>0 Then log.WriteLine "OPEN FAILED " & n & " ERR=" & Err.Description:Err.Clear:On Error GoTo 0:Exit Sub
  On Error GoTo 0
- d.Product.PartNumber=n
- d.Part.Update
- d.Save
+ d.Product.PartNumber=n:d.Part.Update:d.Save
  log.WriteLine "OK " & n & " PartNumber=" & d.Product.PartNumber & " UpToDate=" & d.Part.IsUpToDate(d.Part)
  d.Close
 End Sub
+Function ResolveRoot()
+ Dim sh,tmp,cfg,ts,s
+ Set sh=CreateObject("WScript.Shell"):tmp=sh.ExpandEnvironmentStrings("%TEMP%"):cfg=tmp & "\CAD_Project_root.txt"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ If fso.FileExists(cfg) Then
+  Set ts=fso.OpenTextFile(cfg,1):s=Trim(ts.ReadLine):ts.Close
+  If Right(s,1)="\" Then s=Left(s,Len(s)-1)
+  ResolveRoot=s
+ Else
+  ResolveRoot="C:\Users\Hashaam\Documents\CAD_Project"
+ End If
+End Function
