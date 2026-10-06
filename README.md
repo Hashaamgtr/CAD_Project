@@ -1,17 +1,27 @@
-﻿# CATIA brake pedal project — work in progress
+# CATIA brake pedal project
 
-Start with [HANDOFF_FOR_CHATGPT.md](HANDOFF_FOR_CHATGPT.md).
+This repository contains the unpacked CATIA V5 brake-pedal project handoff.
 
-Presentation 5 is **not complete**: an assembly-building macro is prepared but has not been run or verified.
-Presentation 6 is **not complete**: editable parts and imported OEM parts are prepared; the pedal needs geometric corrections, and the full assembly is still missing.
+Start with:
+- [COMPLETION_STATUS.md](COMPLETION_STATUS.md) — exact current status and remaining CATIA-only work.
+- [HANDOFF_FOR_CHATGPT.md](HANDOFF_FOR_CHATGPT.md) — measured geometry, placement hypotheses, bill of materials and CATIA automation notes.
+- [RUN_FINALIZE.bat](RUN_FINALIZE.bat) — one-click runner for the safe automated CATIA steps.
 
-- `final_parts/`: latest saved native parts, not a certified final submission.
-- `parts/`: imported OEM reference models and their native CATIA dependencies. `MC_Inlet.CATPart` here is an obsolete incomplete draft.
-- `reference_parts/`: supplied STEP reference models.
-- `source_copies/`: copies of the user's original work.
-- `review/`: tutorial extracts/images, macros, diagnostic logs, inspection exports, and source integrity records.
-- `live_parts/` and `editable_parts/`: superseded intermediate attempts, retained for the requested complete handoff.
+## Main folders
 
-Work was done in CATIA V5 B21 (32-bit) on Windows. Native CATIA is required to update and validate CATPart/CATProduct files. Some files/macros contain absolute paths and require relocation before use elsewhere.
+- `final_parts/` — latest native live parts.
+- `parts/` — imported OEM reference models and native Tilton dependencies.
+- `reference_parts/` — supplied STEP reference models.
+- `source_copies/` — preserved copies of the original work.
+- `review/` — tutorial extracts/images, CATScript/VBScript automation, logs, diagnostic exports and validation tools.
+- `live_parts/` and `editable_parts/` — superseded intermediate attempts kept for traceability.
 
-The original EFORCE and tutorial files were not modified; SHA-256 checks are recorded in `review/source_integrity_verified.json`.
+## Important status
+
+Presentation 05 has an assembly-building macro at `review/assemble05.CATScript`, but the resulting native assembly must still be generated and validated in CATIA V5.
+
+Presentation 06 is not yet a certified finished submission. The principal blocker is `final_parts/Pedal_Body.CATPart`, whose live geometry is approximately 6.15% below the supplied reference volume because reinforcement/relief details remain incomplete. The final 45-instance assembly must then be built and validated in CATIA.
+
+The latest live-part builder now sets correct internal CATIA `PartNumber` values. Existing generated files can be fixed with `review/finalize_part_numbers.CATScript`.
+
+CATIA V5 B21 (32-bit) on Windows is required to execute the native automation and validate `.CATPart` / `.CATProduct` results.
