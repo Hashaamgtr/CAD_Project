@@ -10,6 +10,10 @@ Sub CATMain()
  log.WriteLine "Root=" & root
  log.WriteLine "Started=" & Now
  log.WriteLine ""
+ Dim outAsm
+ outAsm=root & "\Brake_Pedal_Assembly.CATProduct"
+ CloseIfOpen outAsm
+ If fso.FileExists(outAsm) Then fso.DeleteFile outAsm,True
 
  Set ad=CATIA.Documents.Add("Product")
  Set prod=ad.Product
@@ -74,7 +78,7 @@ Sub CATMain()
  AddM5Mount mountHw,"B",-533.502,20.33
 
  prod.Update
- ad.SaveAs root & "\Brake_Pedal_Assembly.CATProduct"
+ ad.SaveAs outAsm
  log.WriteLine ""
  log.WriteLine "BOM inserted instances=" & bomCount & " (target 45)"
  log.WriteLine "Saved=" & ad.FullName
@@ -87,6 +91,7 @@ Sub CATMain()
  If Err.Number<>0 Then log.WriteLine "Screenshot warning: " & Err.Description:Err.Clear
  On Error GoTo 0
  log.WriteLine "Finished=" & Now
+ ad.Close
  log.Close
 End Sub
 
@@ -112,6 +117,16 @@ Sub AddItem(parent,file,n,t)
   bomCount=bomCount+1:log.WriteLine "OK | " & n
  End If
  On Error GoTo 0
+End Sub
+
+Sub CloseIfOpen(pth)
+ Dim i,x
+ For i=CATIA.Documents.Count To 1 Step -1
+  Set x=CATIA.Documents.Item(i)
+  On Error Resume Next
+  If LCase(x.FullName)=LCase(pth) Then x.Close
+  On Error GoTo 0
+ Next
 End Sub
 
 Function I12()
