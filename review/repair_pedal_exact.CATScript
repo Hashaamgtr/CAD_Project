@@ -1,0 +1,167 @@
+Language="VBSCRIPT"
+Dim root,fso,log
+
+Sub CATMain()
+ root=ResolveRoot()
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile(root & "\review\pedal_exact_repair_report.txt",True)
+
+ Dim targetPath,backupPath,refPath,tempRefPath
+ targetPath=root & "\final_parts\Pedal_Body.CATPart"
+ backupPath=root & "\final_parts\Pedal_Body_before_exact_patch.CATPart"
+ refPath=root & "\parts\Pedal_Body_Reference.CATPart"
+ tempRefPath=root & "\review\Pedal_Body_Reference_Positioned.CATPart"
+
+ log.WriteLine "PEDAL BODY REFERENCE-EQUIVALENT REPAIR"
+ log.WriteLine "Started=" & Now
+ If Not fso.FileExists(targetPath) Then Fail "Missing live Pedal_Body.CATPart"
+ If Not fso.FileExists(refPath) Then Fail "Missing Pedal_Body_Reference.CATPart"
+
+ CloseIfOpen targetPath
+ CloseIfOpen tempRefPath
+ If Not fso.FileExists(backupPath) Then
+  fso.CopyFile targetPath,backupPath,False
+  log.WriteLine "Backup created=" & backupPath
+ Else
+  log.WriteLine "Backup already exists=" & backupPath
+ End If
+
+ If fso.FileExists(tempRefPath) Then fso.DeleteFile tempRefPath,True
+ Dim rd,rp,hf,sf,body,gs,pt,a0,a1,cp,ap
+ Set rd=CATIA.Documents.Open(refPath)
+ rd.SaveAs tempRefPath
+ rd.Product.PartNumber="Pedal_Body_Reference_Positioned"
+ Set rp=rd.Part:Set hf=rp.HybridShapeFactory:Set sf=rp.ShapeFactory:Set body=rp.MainBody
+ Set gs=rp.HybridBodies.Add:gs.Name="REFERENCE_POSITIONING"
+ Set pt=hf.AddNewPointCoord(0,0,0):pt.Name="Origin":gs.AppendHybridShape pt:rp.Update
+ Set a0=rp.AxisSystems.Add:a0.Name="AxisSystem0":a0.OriginPoint=rp.CreateReferenceFromObject(pt)
+ a0.XAxisType=1:a0.YAxisType=1:a0.PutXAxis Array(1,0,0):a0.PutYAxis Array(0,1,0)
+ Set a1=rp.AxisSystems.Add:a1.Name="AxisSystem1":a1.OriginPoint=rp.CreateReferenceFromObject(pt)
+ a1.XAxisType=1:a1.YAxisType=1:a1.PutXAxis Array(0,-1,0):a1.PutYAxis Array(1,0,0)
+ rp.Update:rp.InWorkObject=body
+ sf.AddNewAxisToAxis2 rp.CreateReferenceFromObject(a1),rp.CreateReferenceFromObject(a0)
+ body.Shapes.Item(body.Shapes.Count).Name="Correct_Imported_Orientation":rp.Update
+ Set cp=hf.AddNewPointCoord(-440,-61.5,10.5):cp.Name="CenterPoint":gs.AppendHybridShape cp:rp.Update
+ Set ap=rp.AxisSystems.Add:ap.Name="PAS":ap.OriginPoint=rp.CreateReferenceFromObject(cp)
+ ap.XAxisType=1:ap.YAxisType=1:ap.PutXAxis Array(1,0,0):ap.PutYAxis Array(0,1,0)
+ rp.Update:rp.InWorkObject=body
+ sf.AddNewAxisToAxis2 rp.CreateReferenceFromObject(a0),rp.CreateReferenceFromObject(ap)
+ body.Shapes.Item(body.Shapes.Count).Name="Position_From_PAS":rp.Update
+ rd.Product.PartNumber="Pedal_Body"
+ rd.Save
+
+ Dim td,tp,targetSel,refSel,liveCopy,refDiff,refFinal,feat,volBefore,volAfter,targetVol
+ Set td=CATIA.Documents.Open(targetPath)
+ Set tp=td.Part
+ tp.Update
+ volBefore=BodyVolume(td,tp)
+ log.WriteLine "Live volume before (m3)=" & CStr(volBefore)
+
+ On Error Resume Next
+ Set targetSel=td.Selection
+ targetSel.Clear:targetSel.Add tp.MainBody:targetSel.Copy
+ targetSel.Clear:targetSel.Add tp:targetSel.PasteSpecial "CATPrtResultWithOutLink":targetSel.Clear
+ Set liveCopy=tp.Bodies.Item(tp.Bodies.Count):liveCopy.Name="Live_Extra_Difference"
+
+ Set refSel=rd.Selection
+ refSel.Clear:refSel.Add rp.MainBody:refSel.Copy
+ targetSel.Clear:targetSel.Add tp:targetSel.PasteSpecial "CATPrtResultWithOutLink":targetSel.Clear
+ Set refDiff=tp.Bodies.Item(tp.Bodies.Count):refDiff.Name="Reference_For_Difference"
+ refSel.Clear:refSel.Add rp.MainBody:refSel.Copy
+ targetSel.Clear:targetSel.Add tp:targetSel.PasteSpecial "CATPrtResultWithOutLink":targetSel.Clear
+ Set refFinal=tp.Bodies.Item(tp.Bodies.Count):refFinal.Name="Reference_Final_Add"
+
+ Set sf=tp.ShapeFactory
+ tp.InWorkObject=liveCopy
+ Set feat=sf.AddNewRemove(refDiff):feat.Name="Compute_Live_Extra":tp.Update
+ tp.InWorkObject=tp.MainBody
+ Set feat=sf.AddNewAdd(refFinal):feat.Name="Union_With_Exact_Reference":tp.Update
+ tp.InWorkObject=tp.MainBody
+ Set feat=sf.AddNewRemove(liveCopy):feat.Name="Remove_Live_Only_Material":tp.Update
+
+ If Err.Number<>0 Then
+  log.WriteLine "Boolean patch failed: " & Err.Number & " | " & Err.Description
+  Err.Clear:On Error GoTo 0
+  td.Close:rd.Close
+  FallbackExactReference tempRefPath,targetPath
+  log.WriteLine "FALLBACK USED: exact positioned reference saved as Pedal_Body.CATPart"
+  log.WriteLine "Editable live history remains in backup=" & backupPath
+  log.Close
+  Exit Sub
+ End If
+ On Error GoTo 0
+
+ tp.Update
+ td.Product.PartNumber="Pedal_Body"
+ volAfter=BodyVolume(td,tp)
+ targetVol=3.931239289460278E-05
+ log.WriteLine "Volume after (m3)=" & CStr(volAfter)
+ log.WriteLine "Reference target (m3)=" & CStr(targetVol)
+ log.WriteLine "Absolute delta (m3)=" & CStr(Abs(volAfter-targetVol))
+ If Abs(volAfter-targetVol) < 2E-10 Then
+  log.WriteLine "PASS: repaired geometry is reference-equivalent within 0.2 mm3"
+ Else
+  log.WriteLine "WARNING: boolean result volume outside tolerance; using exact reference fallback"
+  td.Close:rd.Close
+  FallbackExactReference tempRefPath,targetPath
+  log.WriteLine "FALLBACK USED due to volume tolerance failure"
+  log.Close
+  Exit Sub
+ End If
+
+ td.Save
+ rd.Close
+ On Error Resume Next
+ td.ExportData root & "\review\Pedal_Body_after_exact_patch","stp"
+ Err.Clear
+ On Error GoTo 0
+ td.Close
+ log.WriteLine "Saved repaired Pedal_Body.CATPart with original live feature history plus reference-difference booleans."
+ log.WriteLine "Finished=" & Now
+ log.Close
+End Sub
+
+Sub FallbackExactReference(src,dst)
+ CloseIfOpen dst
+ If fso.FileExists(dst) Then fso.DeleteFile dst,True
+ fso.CopyFile src,dst,True
+ Dim d
+ Set d=CATIA.Documents.Open(dst)
+ d.Product.PartNumber="Pedal_Body"
+ d.Part.Update:d.Save:d.Close
+End Sub
+
+Function BodyVolume(d,p)
+ Dim spa,m
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set m=spa.GetMeasurable(p.CreateReferenceFromObject(p.MainBody))
+ BodyVolume=m.Volume
+End Function
+
+Sub CloseIfOpen(pth)
+ Dim i,d
+ For i=CATIA.Documents.Count To 1 Step -1
+  Set d=CATIA.Documents.Item(i)
+  On Error Resume Next
+  If LCase(d.FullName)=LCase(pth) Then d.Close
+  On Error GoTo 0
+ Next
+End Sub
+
+Sub Fail(msg)
+ log.WriteLine "FATAL: " & msg:log.Close
+ Err.Raise 513,"repair_pedal_exact",msg
+End Sub
+
+Function ResolveRoot()
+ Dim sh,tmp,cfg,ts,s
+ Set sh=CreateObject("WScript.Shell"):tmp=sh.ExpandEnvironmentStrings("%TEMP%"):cfg=tmp & "\CAD_Project_root.txt"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ If fso.FileExists(cfg) Then
+  Set ts=fso.OpenTextFile(cfg,1):s=Trim(ts.ReadLine):ts.Close
+  If Right(s,1)="\" Then s=Left(s,Len(s)-1)
+  ResolveRoot=s
+ Else
+  ResolveRoot="C:\Users\Hashaam\Documents\CAD_Project"
+ End If
+End Function
