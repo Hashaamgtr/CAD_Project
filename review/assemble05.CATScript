@@ -1,10 +1,16 @@
 Language="VBSCRIPT"
-Dim root,d,p,hf,sf,b,gs,pt,cp,a0,a1,ap,sel,prod,ad,log
+Dim root,d,p,hf,sf,b,gs,pt,cp,a0,a1,ap,sel,prod,ad,log,fso
 Sub CATMain()
- root="C:\Users\Hashaam\Documents\CAD_Project"
- Set log=CreateObject("Scripting.FileSystemObject").CreateTextFile(root & "\review\task05_report.txt",True)
+ root=ResolveRoot()
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile(root & "\review\task05_report.txt",True)
+ log.WriteLine "PRESENTATION 05 - ASSEMBLY DESIGN"
+ log.WriteLine "Root=" & root
+ log.WriteLine "Started=" & Now
+
  Set d=CATIA.Documents.Open(root & "\parts\Pedal_Body_Reference.CATPart")
  d.SaveAs root & "\final_parts\Pedal_Body_Imported.CATPart"
+ d.Product.PartNumber="Pedal_Body_Imported"
  Set p=d.Part:Set hf=p.HybridShapeFactory:Set sf=p.ShapeFactory:Set b=p.MainBody:Set sel=d.Selection
  Set gs=p.HybridBodies.Add:gs.Name="CAS"
  Set pt=hf.AddNewPointCoord(0,0,0):pt.Name="Origin":gs.AppendHybridShape pt:p.Update
@@ -15,6 +21,7 @@ Sub CATMain()
  p.Update:p.InWorkObject=b
  sf.AddNewAxisToAxis2 p.CreateReferenceFromObject(a1),p.CreateReferenceFromObject(a0)
  b.Shapes.Item(b.Shapes.Count).Name="Correct_Imported_Orientation":p.Update
+
  Set gs=p.HybridBodies.Add:gs.Name="Position"
  Set cp=hf.AddNewPointCoord(-440,-61.5,10.5):cp.Name="CenterPoint":gs.AppendHybridShape cp:p.Update
  Set ap=p.AxisSystems.Add:ap.Name="PAS":ap.OriginPoint=p.CreateReferenceFromObject(cp)
@@ -22,36 +29,55 @@ Sub CATMain()
  p.Update:p.InWorkObject=b
  sf.AddNewAxisToAxis2 p.CreateReferenceFromObject(a0),p.CreateReferenceFromObject(ap)
  b.Shapes.Item(b.Shapes.Count).Name="Position_From_PAS":p.Update
- sel.Clear
+
  Dim j
+ sel.Clear
  For j=1 To p.HybridBodies.Count:sel.Add p.HybridBodies.Item(j):Next
  For j=1 To p.AxisSystems.Count:sel.Add p.AxisSystems.Item(j):Next
  sel.Add p.OriginElements.PlaneXY:sel.Add p.OriginElements.PlaneYZ:sel.Add p.OriginElements.PlaneZX
  sel.VisProperties.SetShow 1:sel.Clear
  d.Save
  log.WriteLine "Imported pedal updated=" & p.IsUpToDate(p)
- Set ad=CATIA.Documents.Add("Product"):Set prod=ad.Product:prod.PartNumber="Brake_Pedal_Assembly_05"
+
+ Set ad=CATIA.Documents.Add("Product"):Set prod=ad.Product
+ prod.PartNumber="Brake_Pedal_Assembly_05":prod.Name="Brake_Pedal_Assembly_05"
  AddPart "final_parts\Brake_Platform_2.CATPart","Platform",Array(1,0,0,0,1,0,0,0,1,0,0,0)
- AddPart "final_parts\Pedal_Body_Imported.CATPart","Pedal_Body",Array(1,0,0,0,1,0,0,0,1,0,0,0)
+ AddPart "final_parts\Pedal_Body_Imported.CATPart","Pedal_Body_Imported",Array(1,0,0,0,1,0,0,0,1,0,0,0)
  AddPart "parts\Fitted_Bolt_M6_8x30_Reference.CATPart","Pivot_Bolt",Array(1,0,0,0,0,1,0,-1,0,-440,-77.1,10.5)
  AddPart "parts\Washer_8_Reference.CATPart","Pivot_Washer_8",Array(1,0,0,0,0,-1,0,1,0,-440,-77.1,10.5)
  AddPart "parts\Washer_6_Reference.CATPart","Pivot_Washer_6",Array(1,0,0,0,0,-1,0,1,0,-440,-47.5,10.5)
  AddPart "parts\Nut_M6_Reference.CATPart","Pivot_Nut_M6",Array(1,0,0,0,1,0,0,0,1,-440,-45.9,10.5)
  prod.Update
  ad.SaveAs root & "\Brake_Pedal_Assembly_05.CATProduct"
- log.WriteLine "Components=" & prod.Products.Count
+ log.WriteLine "Components=" & prod.Products.Count & " (target 6)"
  log.WriteLine "Saved=" & ad.FullName
  ad.Activate
+ On Error Resume Next
  CATIA.ActiveWindow.ActiveViewer.Reframe
  CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\Task05_Assembly.bmp"
- log.Close
+ If Err.Number<>0 Then log.WriteLine "Screenshot warning=" & Err.Description:Err.Clear
+ On Error GoTo 0
+ log.WriteLine "Finished=" & Now:log.Close
 End Sub
+
 Sub AddPart(file,n,t)
- Dim c,files(0)
- files(0)=root & "\" & file
- prod.Products.AddComponentsFromFiles files,"All"
- Set c=prod.Products.Item(prod.Products.Count)
- c.Name=n
- c.Position.SetComponents t
- log.WriteLine n & " | " & c.ReferenceProduct.Parent.FullName
+ Dim c,files(0),pth
+ pth=root & "\" & file
+ If Not fso.FileExists(pth) Then log.WriteLine "MISSING " & pth:Exit Sub
+ files(0)=pth:prod.Products.AddComponentsFromFiles files,"All"
+ Set c=prod.Products.Item(prod.Products.Count):c.Name=n:c.Position.SetComponents t
+ log.WriteLine "OK | " & n
 End Sub
+
+Function ResolveRoot()
+ Dim sh,tmp,cfg,ts,s
+ Set sh=CreateObject("WScript.Shell"):tmp=sh.ExpandEnvironmentStrings("%TEMP%"):cfg=tmp & "\CAD_Project_root.txt"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ If fso.FileExists(cfg) Then
+  Set ts=fso.OpenTextFile(cfg,1):s=Trim(ts.ReadLine):ts.Close
+  If Right(s,1)="\" Then s=Left(s,Len(s)-1)
+  ResolveRoot=s
+ Else
+  ResolveRoot="C:\Users\Hashaam\Documents\CAD_Project"
+ End If
+End Function
