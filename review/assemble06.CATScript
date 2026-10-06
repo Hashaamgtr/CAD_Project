@@ -1,0 +1,132 @@
+Language="VBSCRIPT"
+Dim root,fso,log,ad,prod,bomCount
+
+Sub CATMain()
+ root=ResolveRoot()
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile(root & "\review\task06_report.txt",True)
+ bomCount=0
+ log.WriteLine "PRESENTATION 06 - FINAL ASSEMBLY BUILD"
+ log.WriteLine "Root=" & root
+ log.WriteLine "Started=" & Now
+ log.WriteLine ""
+
+ Set ad=CATIA.Documents.Add("Product")
+ Set prod=ad.Product
+ prod.PartNumber="Brake_Pedal_Assembly"
+ prod.Name="Brake_Pedal_Assembly"
+
+ Dim live,pivot,tilton,reservoir,foot,shaftHw,mountHw
+ Set live=prod.Products.AddNewProduct("LIVE_PARTS")
+ Set pivot=prod.Products.AddNewProduct("PIVOT_HARDWARE")
+ Set tilton=prod.Products.AddNewProduct("TILTON_HYDRAULICS")
+ Set reservoir=prod.Products.AddNewProduct("RESERVOIR_ASSEMBLY")
+ Set foot=prod.Products.AddNewProduct("FOOT_PLATE_ASSEMBLY")
+ Set shaftHw=prod.Products.AddNewProduct("SHAFT_HARDWARE")
+ Set mountHw=prod.Products.AddNewProduct("TILTON_MOUNT_HARDWARE")
+
+ AddItem live,"final_parts\Brake_Platform_2.CATPart","Brake_Platform_2",I12()
+ AddItem live,"final_parts\Pedal_Body.CATPart","Pedal_Body",I12()
+ AddItem live,"final_parts\Brake_Pedal_Shaft.CATPart","Brake_Pedal_Shaft",I12()
+ AddItem live,"final_parts\Foot_Plate.CATPart","Foot_Plate",I12()
+ AddItem live,"final_parts\Reservoir_Holder.CATPart","Reservoir_Holder",I12()
+
+ AddItem pivot,"parts\Fitted_Bolt_M6_8x30_Reference.CATPart","Pivot_Fitted_Bolt_M6_8x30",Array(1,0,0, 0,0,1, 0,-1,0, -440,-77.1,10.5)
+ AddItem pivot,"parts\Washer_8_Reference.CATPart","Pivot_Washer_8",Array(1,0,0, 0,0,-1, 0,1,0, -440,-77.1,10.5)
+ AddItem pivot,"parts\Washer_6_Reference.CATPart","Pivot_Washer_6",Array(1,0,0, 0,0,-1, 0,1,0, -440,-47.5,10.5)
+ AddItem pivot,"parts\Nut_M6_Reference.CATPart","Pivot_Nut_M6",Array(1,0,0, 0,1,0, 0,0,1, -440,-45.9,10.5)
+
+ AddItem tilton,"parts\Tilton_Set_Reference.CATProduct","Tilton_Set",Array(0,1,0, -1,0,0, 0,0,1, -369.755425448057,-39.0845,-19.494596315825)
+
+ AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_1",Array(0.547139629,0,0.837041353, 0,1,0, -0.837041353,0,0.547139629, -481.3198291,-28.48,153.278453655)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_1",Array(-0.837041353,0,0.547139629, 0,1,0, -0.547139629,0,-0.837041353, -488.853201276,-28.48,158.202710315)
+ AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_1",Array(0.547139629,0,0.837041353, 0.837041353,0,-0.547139629, 0,1,0, -492.258386313,-28.48,200.483908912)
+ AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_1",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -474.261997225,-28.48,188.720406891)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1A",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -478.865724666,-28.48,191.72967485)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1B",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -470.495311137,-28.48,186.258278561)
+ AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_1",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -499.791758489,-28.48,205.408165572)
+
+ AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_2",Array(0.547139629,0,0.837041353, 0,1,0, -0.837041353,0,0.547139629, -481.3198291,-94.52,153.278453655)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_2",Array(-0.837041353,0,0.547139629, 0,1,0, -0.547139629,0,-0.837041353, -488.853201276,-94.52,158.202710315)
+ AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_2",Array(0.547139629,0,0.837041353, 0.837041353,0,-0.547139629, 0,1,0, -492.258386313,-94.52,200.483908912)
+ AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_2",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -474.261997225,-94.52,188.720406891)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2A",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -478.865724666,-94.52,191.72967485)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2B",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -470.495311137,-94.52,186.258278561)
+ AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_2",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -499.791758489,-94.52,205.408165572)
+
+ AddItem reservoir,"parts\Reservoir_Reference.CATPart","Reservoir_1",Array(-1,0,0, 0,-1,0, 0,0,1, -489.5,-39,215.886338005)
+ AddItem reservoir,"parts\Reservoir_Reference.CATPart","Reservoir_2",Array(-1,0,0, 0,-1,0, 0,0,1, -489.5,-84,215.886338005)
+ AddItem reservoir,"parts\Reservoir_Distance_Reference.CATPart","Reservoir_Distance_1",Array(0,1,0, 0,0,1, 1,0,0, -461.5,-44.5,253.386338005)
+ AddItem reservoir,"parts\Reservoir_Distance_Reference.CATPart","Reservoir_Distance_2",Array(0,1,0, 0,0,1, 1,0,0, -461.5,-78.5,253.386338005)
+ AddItem reservoir,"parts\Hex_Bolt_M6x60_Reference.CATPart","Reservoir_Hex_Bolt_M6x60",Array(1,0,0, 0,0,-1, 0,1,0, -461.5,-36.4,253.386338005)
+ AddItem reservoir,"parts\Washer_6_Reference.CATPart","Reservoir_Washer_6_Pos",Array(1,0,0, 0,0,-1, 0,1,0, -461.5,-38,253.386338005)
+ AddItem reservoir,"parts\Washer_6_Reference.CATPart","Reservoir_Washer_6_Neg",Array(1,0,0, 0,0,1, 0,-1,0, -461.5,-85,253.386338005)
+ AddItem reservoir,"parts\Nut_M6_Reference.CATPart","Reservoir_Nut_M6",Array(1,0,0, 0,-1,0, 0,0,-1, -461.5,-86.6,253.386338005)
+
+ AddItem foot,"parts\Low_Head_M4x20_Reference.CATPart","Foot_Plate_Screw_Lower",Array(-1,0,0, 0,1,0, 0,0,-1, -420,-61.5,162.938941558)
+ AddItem foot,"parts\Low_Head_M4x20_Reference.CATPart","Foot_Plate_Screw_Upper",Array(-1,0,0, 0,1,0, 0,0,-1, -420,-61.5,196.938941558)
+
+ AddItem shaftHw,"parts\Nut_M6_Reference.CATPart","Shaft_Nut_M6_Pos",Array(1,0,0, 0,1,0, 0,0,1, -440,-21.75,183.5)
+ AddItem shaftHw,"parts\Nut_M6_Reference.CATPart","Shaft_Nut_M6_Neg",Array(1,0,0, 0,-1,0, 0,0,-1, -440,-101.25,183.5)
+ AddItem shaftHw,"parts\Setscrew_M4x8_Reference.CATPart","Shaft_Setscrew_M4x8",Array(0,1,0, -1,0,0, 0,0,1, -435,-61.5,183.5)
+
+ AddM5Mount mountHw,"A",-527.469611505,12.081815317
+ AddM5Mount mountHw,"B",-554.896108474,30.009392397
+
+ prod.Update
+ ad.SaveAs root & "\Brake_Pedal_Assembly.CATProduct"
+ log.WriteLine ""
+ log.WriteLine "BOM inserted instances=" & bomCount & " (target 45)"
+ log.WriteLine "Saved=" & ad.FullName
+ If bomCount<>45 Then log.WriteLine "WARNING: BOM COUNT DOES NOT MATCH TARGET 45"
+
+ ad.Activate
+ On Error Resume Next
+ CATIA.ActiveWindow.ActiveViewer.Reframe
+ CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\Task06_Assembly.bmp"
+ If Err.Number<>0 Then log.WriteLine "Screenshot warning: " & Err.Description:Err.Clear
+ On Error GoTo 0
+ log.WriteLine "Finished=" & Now
+ log.Close
+End Sub
+
+Sub AddM5Mount(parent,label,x,z)
+ AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Near",Array(1,0,0, 0,0,-1, 0,1,0, x,-76.47,z)
+ AddItem parent,"parts\Bolt_M5x40_Reference.CATPart","Mount_Bolt_M5x40_" & label,Array(1,0,0, 0,-1,0, 0,0,-1, x,-76.47,z)
+ AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Far",Array(1,0,0, 0,0,-1, 0,1,0, x,-47.5235,z)
+ AddItem parent,"parts\Nut_M5_Reference.CATPart","Mount_Nut_M5_" & label,Array(0,1,0, 0,0,1, 1,0,0, x,-46.5235,z)
+End Sub
+
+Sub AddItem(parent,file,n,t)
+ Dim c,files(0),pth
+ pth=root & "\" & file
+ If Not fso.FileExists(pth) Then log.WriteLine "MISSING | " & n & " | " & pth:Exit Sub
+ files(0)=pth
+ parent.Products.AddComponentsFromFiles files,"All"
+ Set c=parent.Products.Item(parent.Products.Count)
+ On Error Resume Next
+ c.Name=n:c.Position.SetComponents t
+ If Err.Number<>0 Then
+  log.WriteLine "POSITION ERROR | " & n & " | " & Err.Description:Err.Clear
+ Else
+  bomCount=bomCount+1:log.WriteLine "OK | " & n
+ End If
+ On Error GoTo 0
+End Sub
+
+Function I12()
+ I12=Array(1,0,0, 0,1,0, 0,0,1, 0,0,0)
+End Function
+
+Function ResolveRoot()
+ Dim sh,tmp,cfg,ts,s
+ Set sh=CreateObject("WScript.Shell"):tmp=sh.ExpandEnvironmentStrings("%TEMP%"):cfg=tmp & "\CAD_Project_root.txt"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ If fso.FileExists(cfg) Then
+  Set ts=fso.OpenTextFile(cfg,1):s=Trim(ts.ReadLine):ts.Close
+  If Right(s,1)="\" Then s=Left(s,Len(s)-1)
+  ResolveRoot=s
+ Else
+  ResolveRoot="C:\Users\Hashaam\Documents\CAD_Project"
+ End If
+End Function
