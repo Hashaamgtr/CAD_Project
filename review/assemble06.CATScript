@@ -17,7 +17,7 @@ Sub CATMain()
  prod.Name="Brake_Pedal_Assembly"
 
  Dim live,pivot,tilton,reservoir,foot,shaftHw,mountHw
- Set live=prod.Products.AddNewProduct("LIVE_PARTS")
+ Set live=prod.Products.AddNewProduct("PEDAL_FRAME")
  Set pivot=prod.Products.AddNewProduct("PIVOT_HARDWARE")
  Set tilton=prod.Products.AddNewProduct("TILTON_HYDRAULICS")
  Set reservoir=prod.Products.AddNewProduct("RESERVOIR_ASSEMBLY")
@@ -27,32 +27,32 @@ Sub CATMain()
 
  AddItem live,"final_parts\Brake_Platform_2.CATPart","Brake_Platform_2",I12()
  AddItem live,"final_parts\Pedal_Body.CATPart","Pedal_Body",I12()
- AddItem live,"final_parts\Brake_Pedal_Shaft.CATPart","Brake_Pedal_Shaft",I12()
- AddItem live,"final_parts\Foot_Plate.CATPart","Foot_Plate",I12()
- AddItem live,"final_parts\Reservoir_Holder.CATPart","Reservoir_Holder",I12()
+ AddItem shaftHw,"final_parts\Brake_Pedal_Shaft.CATPart","Brake_Pedal_Shaft",I12()
+ AddItem foot,"final_parts\Foot_Plate.CATPart","Foot_Plate",I12()
+ AddItem reservoir,"final_parts\Reservoir_Holder.CATPart","Reservoir_Holder",I12()
 
  AddItem pivot,"parts\Fitted_Bolt_M6_8x30_Reference.CATPart","Pivot_Fitted_Bolt_M6_8x30",Array(1,0,0, 0,0,1, 0,-1,0, -440,-77.1,10.5)
  AddItem pivot,"parts\Washer_8_Reference.CATPart","Pivot_Washer_8",Array(1,0,0, 0,0,-1, 0,1,0, -440,-77.1,10.5)
  AddItem pivot,"parts\Washer_6_Reference.CATPart","Pivot_Washer_6",Array(1,0,0, 0,0,-1, 0,1,0, -440,-47.5,10.5)
  AddItem pivot,"parts\Nut_M6_Reference.CATPart","Pivot_Nut_M6",Array(1,0,0, 0,1,0, 0,0,1, -440,-45.9,10.5)
 
- AddItem tilton,"parts\Tilton_Set_Reference.CATProduct","Tilton_Set",Array(0,1,0, -1,0,0, 0,0,1, -369.755425448057,-39.0845,-19.494596315825)
+ AddItem tilton,"parts\Tilton_Set_Reference.CATProduct","Tilton_Set",Array(0,1,0, -0.987219033687,0,-0.159369318017, -0.159369318017,0,0.987219033687, -342.856709670732,-39.0845,0.972716092190)
 
- AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_1",Array(0.547139629,0,0.837041353, 0,1,0, -0.837041353,0,0.547139629, -481.3198291,-28.48,153.278453655)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_1",Array(-0.837041353,0,0.547139629, 0,1,0, -0.547139629,0,-0.837041353, -488.853201276,-28.48,158.202710315)
- AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_1",Array(0.547139629,0,0.837041353, 0.837041353,0,-0.547139629, 0,1,0, -492.258386313,-28.48,200.483908912)
- AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_1",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -474.261997225,-28.48,188.720406891)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1A",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -478.865724666,-28.48,191.72967485)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1B",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -470.495311137,-28.48,186.258278561)
- AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_1",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -499.791758489,-28.48,205.408165572)
+ AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_1",Array(0.406747946254,0,0.913540425199, 0,1,0, -0.913540425199,0,0.406747946254, -480.529935583461,-28.48,153.757616606664)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_1",Array(-0.913540425199,0,0.406747946254, 0,1,0, -0.406747946254,0,-0.913540425199, -488.751799409104,-28.48,157.418348122122)
+ AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_1",Array(0.406747946254,0,0.913540425199, 0.913540425199,0,-0.406747946254, 0,1,0, -498.851788676196,-28.48,198.616470127133)
+ AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_1",Array(-0.406747946254,0,-0.913540425199, 0,1,0, 0.913540425199,0,-0.406747946254, -479.210669536300,-28.48,189.871389284901)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1A",Array(0.913540425199,0,-0.406747946254, 0,1,0, 0.406747946254,0,0.913540425199, -484.235141874320,-28.48,192.108502988884)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_1B",Array(0.913540425199,0,-0.406747946254, 0,1,0, 0.406747946254,0,0.913540425199, -475.099737623478,-28.48,188.041023527171)
+ AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_1",Array(-0.406747946254,0,-0.913540425199, 0,1,0, 0.913540425199,0,-0.406747946254, -507.073652501839,-28.48,202.277201642591)
 
- AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_2",Array(0.547139629,0,0.837041353, 0,1,0, -0.837041353,0,0.547139629, -481.3198291,-94.52,153.278453655)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_2",Array(-0.837041353,0,0.547139629, 0,1,0, -0.547139629,0,-0.837041353, -488.853201276,-94.52,158.202710315)
- AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_2",Array(0.547139629,0,0.837041353, 0.837041353,0,-0.547139629, 0,1,0, -492.258386313,-94.52,200.483908912)
- AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_2",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -474.261997225,-94.52,188.720406891)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2A",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -478.865724666,-94.52,191.72967485)
- AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2B",Array(0.837041353,0,-0.547139629, 0,1,0, 0.547139629,0,0.837041353, -470.495311137,-94.52,186.258278561)
- AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_2",Array(-0.547139629,0,-0.837041353, 0,1,0, 0.837041353,0,-0.547139629, -499.791758489,-94.52,205.408165572)
+ AddItem tilton,"final_parts\MC_Inlet.CATPart","MC_Inlet_2",Array(0.406747946254,0,0.913540425199, 0,1,0, -0.913540425199,0,0.406747946254, -480.529935583461,-94.52,153.757616606664)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","MC_Copper_Washer_2",Array(-0.913540425199,0,0.406747946254, 0,1,0, -0.406747946254,0,-0.913540425199, -488.751799409104,-94.52,157.418348122122)
+ AddItem tilton,"final_parts\BRK_PRS_Sensor_Connection.CATPart","BRK_PRS_Sensor_Connection_2",Array(0.406747946254,0,0.913540425199, 0.913540425199,0,-0.406747946254, 0,1,0, -498.851788676196,-94.52,198.616470127133)
+ AddItem tilton,"parts\Banjo_Reference.CATPart","Banjo_2",Array(-0.406747946254,0,-0.913540425199, 0,1,0, 0.913540425199,0,-0.406747946254, -479.210669536300,-94.52,189.871389284901)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2A",Array(0.913540425199,0,-0.406747946254, 0,1,0, 0.406747946254,0,0.913540425199, -484.235141874320,-94.52,192.108502988884)
+ AddItem tilton,"parts\Copper_Washer_Reference.CATPart","Sensor_Copper_Washer_2B",Array(0.913540425199,0,-0.406747946254, 0,1,0, 0.406747946254,0,0.913540425199, -475.099737623478,-94.52,188.041023527171)
+ AddItem tilton,"parts\BRK_PRS_Sensor_Reference.CATPart","Brake_Pressure_Sensor_2",Array(-0.406747946254,0,-0.913540425199, 0,1,0, 0.913540425199,0,-0.406747946254, -507.073652501839,-94.52,202.277201642591)
 
  AddItem reservoir,"parts\Reservoir_Reference.CATPart","Reservoir_1",Array(-1,0,0, 0,-1,0, 0,0,1, -489.5,-39,215.886338005)
  AddItem reservoir,"parts\Reservoir_Reference.CATPart","Reservoir_2",Array(-1,0,0, 0,-1,0, 0,0,1, -489.5,-84,215.886338005)
@@ -70,8 +70,8 @@ Sub CATMain()
  AddItem shaftHw,"parts\Nut_M6_Reference.CATPart","Shaft_Nut_M6_Neg",Array(1,0,0, 0,-1,0, 0,0,-1, -440,-101.25,183.5)
  AddItem shaftHw,"parts\Setscrew_M4x8_Reference.CATPart","Shaft_Setscrew_M4x8",Array(0,1,0, -1,0,0, 0,0,1, -435,-61.5,183.5)
 
- AddM5Mount mountHw,"A",-527.469611505,12.081815317
- AddM5Mount mountHw,"B",-554.896108474,30.009392397
+ AddM5Mount mountHw,"A",-503.606,7.019
+ AddM5Mount mountHw,"B",-533.502,20.33
 
  prod.Update
  ad.SaveAs root & "\Brake_Pedal_Assembly.CATProduct"
@@ -91,10 +91,10 @@ Sub CATMain()
 End Sub
 
 Sub AddM5Mount(parent,label,x,z)
- AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Near",Array(1,0,0, 0,0,-1, 0,1,0, x,-76.47,z)
- AddItem parent,"parts\Bolt_M5x40_Reference.CATPart","Mount_Bolt_M5x40_" & label,Array(1,0,0, 0,-1,0, 0,0,-1, x,-76.47,z)
- AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Far",Array(1,0,0, 0,0,-1, 0,1,0, x,-47.5235,z)
- AddItem parent,"parts\Nut_M5_Reference.CATPart","Mount_Nut_M5_" & label,Array(0,1,0, 0,0,1, 1,0,0, x,-46.5235,z)
+ AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Near",Array(1,0,0, 0,0,-1, 0,1,0, x,-76.5,z)
+ AddItem parent,"parts\Bolt_M5x40_Reference.CATPart","Mount_Bolt_M5x40_" & label,Array(1,0,0, 0,-1,0, 0,0,-1, x,-76.5,z)
+ AddItem parent,"parts\Washer_5_Reference.CATPart","Mount_Washer_5_" & label & "_Far",Array(1,0,0, 0,0,-1, 0,1,0, x,-47.5,z)
+ AddItem parent,"parts\Nut_M5_Reference.CATPart","Mount_Nut_M5_" & label,Array(0,1,0, 0,0,1, 1,0,0, x,-46.5,z)
 End Sub
 
 Sub AddItem(parent,file,n,t)
