@@ -7,9 +7,15 @@ Sub CATMain()
  log.WriteLine "PRESENTATION 05 - ASSEMBLY DESIGN"
  log.WriteLine "Root=" & root
  log.WriteLine "Started=" & Now
+ Dim outPedal,outAsm
+ outPedal=root & "\final_parts\Pedal_Body_Imported.CATPart"
+ outAsm=root & "\Brake_Pedal_Assembly_05.CATProduct"
+ CloseIfOpen outPedal:CloseIfOpen outAsm
+ If fso.FileExists(outPedal) Then fso.DeleteFile outPedal,True
+ If fso.FileExists(outAsm) Then fso.DeleteFile outAsm,True
 
  Set d=CATIA.Documents.Open(root & "\parts\Pedal_Body_Reference.CATPart")
- d.SaveAs root & "\final_parts\Pedal_Body_Imported.CATPart"
+ d.SaveAs outPedal
  d.Product.PartNumber="Pedal_Body_Imported"
  Set p=d.Part:Set hf=p.HybridShapeFactory:Set sf=p.ShapeFactory:Set b=p.MainBody:Set sel=d.Selection
  Set gs=p.HybridBodies.Add:gs.Name="CAS"
@@ -48,7 +54,7 @@ Sub CATMain()
  AddPart "parts\Washer_6_Reference.CATPart","Pivot_Washer_6",Array(1,0,0,0,0,-1,0,1,0,-440,-47.5,10.5)
  AddPart "parts\Nut_M6_Reference.CATPart","Pivot_Nut_M6",Array(1,0,0,0,1,0,0,0,1,-440,-45.9,10.5)
  prod.Update
- ad.SaveAs root & "\Brake_Pedal_Assembly_05.CATProduct"
+ ad.SaveAs outAsm
  log.WriteLine "Components=" & prod.Products.Count & " (target 6)"
  log.WriteLine "Saved=" & ad.FullName
  ad.Activate
@@ -57,7 +63,10 @@ Sub CATMain()
  CATIA.ActiveWindow.ActiveViewer.CaptureToFile 4,root & "\review\Task05_Assembly.bmp"
  If Err.Number<>0 Then log.WriteLine "Screenshot warning=" & Err.Description:Err.Clear
  On Error GoTo 0
- log.WriteLine "Finished=" & Now:log.Close
+ log.WriteLine "Finished=" & Now
+ ad.Close
+ d.Close
+ log.Close
 End Sub
 
 Sub AddPart(file,n,t)
@@ -67,6 +76,16 @@ Sub AddPart(file,n,t)
  files(0)=pth:prod.Products.AddComponentsFromFiles files,"All"
  Set c=prod.Products.Item(prod.Products.Count):c.Name=n:c.Position.SetComponents t
  log.WriteLine "OK | " & n
+End Sub
+
+Sub CloseIfOpen(pth)
+ Dim i,x
+ For i=CATIA.Documents.Count To 1 Step -1
+  Set x=CATIA.Documents.Item(i)
+  On Error Resume Next
+  If LCase(x.FullName)=LCase(pth) Then x.Close
+  On Error GoTo 0
+ Next
 End Sub
 
 Function ResolveRoot()
