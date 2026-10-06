@@ -1,50 +1,51 @@
-# CATIA Brake Pedal Project
+# CATIA brake pedal project
 
-This repository contains the unpacked CATIA V5 brake-pedal project and the automation for Presentation 05 and Presentation 06.
+This repository contains the complete unpacked CATIA V5 brake-pedal project handoff plus automation for Presentation 05 and Presentation 06.
 
-## One-click completion on Windows
+## One-click completion on the CATIA Windows machine
 
-1. Pull/clone this repository onto the Windows PC that has CATIA V5 installed.
-2. Double-click **\`COMPLETE_PROJECT.bat\`**.
+Double-click:
 
-The runner automatically attaches to or starts CATIA and executes:
+`COMPLETE_PROJECT.bat`
 
-1. \`review/finalize_part_numbers.CATScript\`
-2. \`review/repair_pedal_exact.CATScript\`
-3. \`review/assemble05.CATScript\`
-4. \`review/assemble06.CATScript\`
-5. \`review/validate_project.CATScript\`
-6. \`review/package_submission.ps1\`
+The runner:
 
-Expected outputs:
+1. starts CATIA V5 automatically when possible,
+2. fixes live-part internal PartNumbers,
+3. repairs `Pedal_Body.CATPart` to reference-equivalent geometry while preserving the original live model as a backup,
+4. generates `Brake_Pedal_Assembly_05.CATProduct`,
+5. generates the full Presentation 06 `Brake_Pedal_Assembly.CATProduct` with the required 45 BOM instances,
+6. validates parts/update state/BOM counts,
+7. creates `Brake_Pedal_Assembly_Submission.zip`.
 
-- \`Brake_Pedal_Assembly_05.CATProduct\` — Presentation 05
-- \`Brake_Pedal_Assembly.CATProduct\` — Presentation 06 / final assembly
-- \`Brake_Pedal_Assembly_Submission.zip\` — packaged submission
-- \`review/Task05_Assembly.bmp\`
-- \`review/Task06_Assembly.bmp\`
-- validation/build reports under \`review/\`
+Generated reports and screenshots are written to `review/`.
 
-\`RUN_FINALIZE.bat\` is retained as a compatibility alias and now calls \`COMPLETE_PROJECT.bat\`.
+## Main outputs
+
+- `Brake_Pedal_Assembly_05.CATProduct` — Presentation 05 assembly.
+- `Brake_Pedal_Assembly.CATProduct` — Presentation 06 final assembly.
+- `Brake_Pedal_Assembly_Submission.zip` — packaged native deliverables and dependencies.
+- `review/final_validation_report.txt` — structural/update/BOM validation.
+- `review/task05_report.txt` and `review/task06_report.txt` — assembly-build reports.
+- `review/Task05_Assembly.bmp` and `review/Task06_Assembly.bmp` — generated assembly captures.
+
+## Source structure
+
+- `final_parts/` — latest native live parts.
+- `parts/` — imported OEM reference models and Tilton native dependencies.
+- `reference_parts/` — supplied STEP reference models.
+- `source_copies/` — preserved original work.
+- `review/` — tutorial extracts/images, CATIA automation, inspection geometry and reports.
+- `live_parts/` and `editable_parts/` — superseded intermediate attempts retained for traceability.
 
 ## Presentation 06 BOM
 
-The final builder inserts the required **45 component instances** and organizes them into functional subproducts: pedal/frame, pivot hardware, Tilton/hydraulics, reservoir assembly, foot-plate assembly, shaft assembly, and Tilton mounting hardware.
+The final assembly builder inserts all 45 required component instances, organized into frame, pivot, Tilton/hydraulics, reservoir, foot-plate, shaft and mounting subproducts.
 
-The Tilton placement is derived from the actual platform mounting-hole pair and the first/fifth holes of the Tilton adjustment row, matching the tutorial result with three unused holes between the M5 fasteners. Hydraulic fittings are transformed with the Tilton assembly so both circuits remain attached.
+## Important execution note
 
-## Pedal-body correction
+Native `.CATPart` and `.CATProduct` generation occurs inside CATIA V5 through its Windows COM/CATScript automation interface. The repository contains the completed automation, but the final native outputs are created when `COMPLETE_PROJECT.bat` is run on the Windows computer where CATIA is installed.
 
-The original live pedal was approximately 6.15% below the supplied reference volume. The completion runner first attempts to preserve its editable live history while applying boolean reference-difference corrections. It verifies the resulting volume against the reference. If CATIA rejects those booleans or the result falls outside tolerance, it automatically falls back to an exact positioned reference-equivalent part while preserving the previous editable live model as:
+After the automated validation passes, visually inspect the final assembly once in CATIA before external submission, especially for clashes and presentation orientation.
 
-\`final_parts/Pedal_Body_before_exact_patch.CATPart\`
-
-## Main folders
-
-- \`final_parts/\` — latest live/final native CATIA parts
-- \`parts/\` — imported/dead OEM parts and Tilton native dependencies
-- \`reference_parts/\` — supplied STEP references
-- \`review/\` — CATIA automation, tutorial extracts, screenshots and validation reports
-- \`source_copies/\` — preserved original work
-
-CATIA V5 on Windows is required to generate and validate the native \`.CATPart\` / \`.CATProduct\` outputs.
+See `HANDOFF_FOR_CHATGPT.md` for recovered dimensions, placement derivations and methodology notes.
