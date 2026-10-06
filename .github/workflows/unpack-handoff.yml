@@ -9,21 +9,23 @@ permissions:
 
 jobs:
   unpack:
-    if: ${{ hashFiles('CAD_Project_Handoff.zip') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Unpack project archive
+        shell: bash
         run: |
           set -euo pipefail
+          test -f CAD_Project_Handoff.zip
           tmp="$(mktemp -d)"
           unzip -q CAD_Project_Handoff.zip -d "$tmp"
           cp -a "$tmp"/. .
           rm -f CAD_Project_Handoff.zip
           rm -rf "$tmp"
       - name: Commit unpacked project
+        shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
