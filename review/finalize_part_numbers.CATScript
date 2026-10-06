@@ -1,0 +1,34 @@
+Language="VBSCRIPT"
+Dim root,fso,log
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile(root & "\review\part_number_finalize_report.txt",True)
+ FixOne "MC_Inlet"
+ FixOne "BRK_PRS_Sensor_Connection"
+ FixOne "Pedal_Body"
+ log.Close
+End Sub
+
+Sub FixOne(n)
+ Dim pth,d
+ pth=root & "\final_parts\" & n & ".CATPart"
+ If Not fso.FileExists(pth) Then
+  log.WriteLine "MISSING " & pth
+  Exit Sub
+ End If
+ On Error Resume Next
+ Set d=CATIA.Documents.Open(pth)
+ If Err.Number<>0 Then
+  log.WriteLine "OPEN FAILED " & n & " ERR=" & Err.Description
+  Err.Clear
+  On Error GoTo 0
+  Exit Sub
+ End If
+ On Error GoTo 0
+ d.Product.PartNumber=n
+ d.Part.Update
+ d.Save
+ log.WriteLine "OK " & n & " PartNumber=" & d.Product.PartNumber & " UpToDate=" & d.Part.IsUpToDate(d.Part)
+ d.Close
+End Sub
