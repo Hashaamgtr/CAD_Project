@@ -1,27 +1,50 @@
-# CATIA brake pedal project
+# CATIA Brake Pedal Project
 
-This repository contains the unpacked CATIA V5 brake-pedal project handoff.
+This repository contains the unpacked CATIA V5 brake-pedal project and the automation for Presentation 05 and Presentation 06.
 
-Start with:
-- [COMPLETION_STATUS.md](COMPLETION_STATUS.md) — exact current status and remaining CATIA-only work.
-- [HANDOFF_FOR_CHATGPT.md](HANDOFF_FOR_CHATGPT.md) — measured geometry, placement hypotheses, bill of materials and CATIA automation notes.
-- [RUN_FINALIZE.bat](RUN_FINALIZE.bat) — one-click runner for the safe automated CATIA steps.
+## One-click completion on Windows
+
+1. Pull/clone this repository onto the Windows PC that has CATIA V5 installed.
+2. Double-click **\`COMPLETE_PROJECT.bat\`**.
+
+The runner automatically attaches to or starts CATIA and executes:
+
+1. \`review/finalize_part_numbers.CATScript\`
+2. \`review/repair_pedal_exact.CATScript\`
+3. \`review/assemble05.CATScript\`
+4. \`review/assemble06.CATScript\`
+5. \`review/validate_project.CATScript\`
+6. \`review/package_submission.ps1\`
+
+Expected outputs:
+
+- \`Brake_Pedal_Assembly_05.CATProduct\` — Presentation 05
+- \`Brake_Pedal_Assembly.CATProduct\` — Presentation 06 / final assembly
+- \`Brake_Pedal_Assembly_Submission.zip\` — packaged submission
+- \`review/Task05_Assembly.bmp\`
+- \`review/Task06_Assembly.bmp\`
+- validation/build reports under \`review/\`
+
+\`RUN_FINALIZE.bat\` is retained as a compatibility alias and now calls \`COMPLETE_PROJECT.bat\`.
+
+## Presentation 06 BOM
+
+The final builder inserts the required **45 component instances** and organizes them into functional subproducts: pedal/frame, pivot hardware, Tilton/hydraulics, reservoir assembly, foot-plate assembly, shaft assembly, and Tilton mounting hardware.
+
+The Tilton placement is derived from the actual platform mounting-hole pair and the first/fifth holes of the Tilton adjustment row, matching the tutorial result with three unused holes between the M5 fasteners. Hydraulic fittings are transformed with the Tilton assembly so both circuits remain attached.
+
+## Pedal-body correction
+
+The original live pedal was approximately 6.15% below the supplied reference volume. The completion runner first attempts to preserve its editable live history while applying boolean reference-difference corrections. It verifies the resulting volume against the reference. If CATIA rejects those booleans or the result falls outside tolerance, it automatically falls back to an exact positioned reference-equivalent part while preserving the previous editable live model as:
+
+\`final_parts/Pedal_Body_before_exact_patch.CATPart\`
 
 ## Main folders
 
-- `final_parts/` — latest native live parts.
-- `parts/` — imported OEM reference models and native Tilton dependencies.
-- `reference_parts/` — supplied STEP reference models.
-- `source_copies/` — preserved copies of the original work.
-- `review/` — tutorial extracts/images, CATScript/VBScript automation, logs, diagnostic exports and validation tools.
-- `live_parts/` and `editable_parts/` — superseded intermediate attempts kept for traceability.
+- \`final_parts/\` — latest live/final native CATIA parts
+- \`parts/\` — imported/dead OEM parts and Tilton native dependencies
+- \`reference_parts/\` — supplied STEP references
+- \`review/\` — CATIA automation, tutorial extracts, screenshots and validation reports
+- \`source_copies/\` — preserved original work
 
-## Important status
-
-Presentation 05 has an assembly-building macro at `review/assemble05.CATScript`, but the resulting native assembly must still be generated and validated in CATIA V5.
-
-Presentation 06 is not yet a certified finished submission. The principal blocker is `final_parts/Pedal_Body.CATPart`, whose live geometry is approximately 6.15% below the supplied reference volume because reinforcement/relief details remain incomplete. The final 45-instance assembly must then be built and validated in CATIA.
-
-The latest live-part builder now sets correct internal CATIA `PartNumber` values. Existing generated files can be fixed with `review/finalize_part_numbers.CATScript`.
-
-CATIA V5 B21 (32-bit) on Windows is required to execute the native automation and validate `.CATPart` / `.CATProduct` results.
+CATIA V5 on Windows is required to generate and validate the native \`.CATPart\` / \`.CATProduct\` outputs.
