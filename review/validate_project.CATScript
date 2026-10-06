@@ -1,0 +1,53 @@
+Language="VBSCRIPT"
+Dim root,fso,log
+Sub CATMain()
+ root="C:\Users\Hashaam\Documents\CAD_Project"
+ Set fso=CreateObject("Scripting.FileSystemObject")
+ Set log=fso.CreateTextFile(root & "\review\final_validation_report.txt",True)
+ log.WriteLine "CAD PROJECT VALIDATION"
+ log.WriteLine "======================"
+ CheckPart "Brake_Platform_2"
+ CheckPart "Brake_Pedal_Shaft"
+ CheckPart "Reservoir_Holder"
+ CheckPart "Foot_Plate"
+ CheckPart "MC_Inlet"
+ CheckPart "BRK_PRS_Sensor_Connection"
+ CheckPart "Pedal_Body"
+ CheckFile root & "\Brake_Pedal_Assembly_05.CATProduct"
+ CheckFile root & "\Brake_Pedal_Assembly.CATProduct"
+ CheckFile root & "\parts\Tilton_Set_Reference.CATProduct"
+ log.WriteLine ""
+ log.WriteLine "NOTE: a passing file/update check is not an interference or geometric validation."
+ log.Close
+End Sub
+
+Sub CheckPart(n)
+ Dim pth,d,spa,m
+ pth=root & "\final_parts\" & n & ".CATPart"
+ If Not fso.FileExists(pth) Then
+  log.WriteLine "MISSING PART: " & n
+  Exit Sub
+ End If
+ On Error Resume Next
+ Set d=CATIA.Documents.Open(pth)
+ If Err.Number<>0 Then
+  log.WriteLine "OPEN FAILED: " & n & " | " & Err.Description
+  Err.Clear
+  On Error GoTo 0
+  Exit Sub
+ End If
+ On Error GoTo 0
+ d.Part.Update
+ Set spa=d.GetWorkbench("SPAWorkbench")
+ Set m=spa.GetMeasurable(d.Part.CreateReferenceFromObject(d.Part.MainBody))
+ log.WriteLine "PART " & n & " | PartNumber=" & d.Product.PartNumber & " | UpToDate=" & d.Part.IsUpToDate(d.Part) & " | Volume_m3=" & m.Volume
+ d.Close
+End Sub
+
+Sub CheckFile(pth)
+ If fso.FileExists(pth) Then
+  log.WriteLine "FOUND: " & pth
+ Else
+  log.WriteLine "MISSING: " & pth
+ End If
+End Sub
